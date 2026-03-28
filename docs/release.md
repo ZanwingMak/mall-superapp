@@ -1,14 +1,18 @@
-# 发布说明（v0.1.0）
+# 发布说明（v0.2.0）
 
 ## 版本
-- 初始语义化版本：`v0.1.0`
+- 当前版本：`v0.2.0`
+
+## 发布动作
+1. 更新版本号与变更日志
+2. 创建 tag：`git tag v0.2.0`
+3. 推送：`git push origin main --tags`
+
+## 自动化
+- `.github/workflows/release.yml`：构建 web/mobile 并上传 release 资产
+- `.github/workflows/tauri.yml`：在 macOS + Windows 产出桌面包
 
 ## 产物
-- Web 构建产物：`apps/web/dist`
-- 桌面端：Tauri 工程可打包（当前环境缺 Rust 工具链，需安装后执行）
-- 小程序：Taro 构建产物（`apps/mobile/dist`）
-
-## 发布流程
-1. `pnpm build && pnpm test`
-2. `git tag v0.1.0`
-3. `gh release create v0.1.0 ... --notes-file docs/release.md`
+- web: `artifacts-web-dist-v0.2.0.tar.gz`
+- mobile: `artifacts-mobile-weapp-dist-v0.2.0.tar.gz`
+- tauri: 由 tauri-action 发布到 GitHub Release
