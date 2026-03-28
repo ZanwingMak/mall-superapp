@@ -1,6 +1,6 @@
 {
   "name": "@mall/web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,7 @@
     "test": "vitest run",
     "lint": "echo web lint",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "e2e": "playwright test"
+    "e2e": "VITE_ENABLE_MSW=true pnpm run build && start-server-and-test \"VITE_ENABLE_MSW=true pnpm run preview --host 127.0.0.1 --port 5193 --strictPort\" http://127.0.0.1:5193 \"playwright test\""
   },
   "dependencies": {
     "@mall/api-client": "workspace:*",
@@ -33,6 +33,7 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.2",
+    "start-server-and-test": "^2.0.8",
     "vite": "^7.1.5",
     "vitest": "^3.2.4"
   }

@@ -1,0 +1,4 @@
+[
+  {"id":"c1","title":"满300减30","discount":30,"minSpend":300,"expireAt":"2026-04-30"},
+  {"id":"c2","title":"满800减120","discount":120,"minSpend":800,"expireAt":"2026-05-10"}
+]

@@ -5,7 +5,7 @@ import App from './pages/App';
 import './styles.css';
 import { worker } from './mocks/browser';
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV || import.meta.env.VITE_ENABLE_MSW === 'true') {
   worker.start({ onUnhandledRequest: 'bypass' });
 }
 
