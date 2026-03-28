@@ -1,8 +1,18 @@
 openapi: 3.0.3
 info:
   title: Mall SuperApp API
-  version: 0.2.0
+  version: 0.3.0
 paths:
+  /api/home:
+    get:
+      summary: Get home feed data (banner/activity/rank/newcomer)
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HomePayload'
   /api/products:
     get:
       summary: Get product list
@@ -15,6 +25,37 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Product'
+  /api/products/{id}:
+    get:
+      summary: Get product detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+  /api/reviews:
+    get:
+      summary: Get review list by product id
+      parameters:
+        - name: productId
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
   /api/coupons:
     get:
       summary: Get available coupons
@@ -41,7 +82,13 @@ paths:
                   $ref: '#/components/schemas/Address'
   /api/orders:
     get:
-      summary: Get order list
+      summary: Get order list by status
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [all, pending, paid, shipping, done]
       responses:
         '200':
           description: ok
@@ -53,7 +100,7 @@ paths:
                   $ref: '#/components/schemas/Order'
   /api/checkout:
     post:
-      summary: Create order from cart
+      summary: Create order from selected cart items
       requestBody:
         required: true
         content:
@@ -75,14 +122,56 @@ paths:
                     enum: [success]
 components:
   schemas:
+    HomePayload:
+      type: object
+      properties:
+        banners:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              title: { type: string }
+              subtitle: { type: string }
+              image: { type: string }
+        activities:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              title: { type: string }
+              desc: { type: string }
+              badge: { type: string }
+        hotRank:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              score: { type: string }
+        newcomer:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              title: { type: string }
+              perk: { type: string }
     Product:
       type: object
       required: [id, title, price, image, category, tags, stock]
       properties:
         id: { type: string }
         title: { type: string }
+        subtitle: { type: string }
         price: { type: number }
+        originPrice: { type: number }
         image: { type: string }
+        images:
+          type: array
+          items: { type: string }
         category:
           type: string
           enum: [fashion, digital, home, food]
@@ -90,6 +179,18 @@ components:
           type: array
           items: { type: string }
         stock: { type: integer }
+        soldCount: { type: integer }
+        rating: { type: number }
+        description: { type: string }
+    Review:
+      type: object
+      properties:
+        id: { type: string }
+        productId: { type: string }
+        user: { type: string }
+        rating: { type: number }
+        content: { type: string }
+        createdAt: { type: string }
     Coupon:
       type: object
       required: [id, title, discount, minSpend, expireAt]
@@ -117,7 +218,7 @@ components:
         amount: { type: number }
         status:
           type: string
-          enum: [paid, shipping, done]
+          enum: [pending, paid, shipping, done]
         createdAt: { type: string }
         itemCount: { type: integer }
     CheckoutPayload:
@@ -129,6 +230,8 @@ components:
           items: { type: string }
         couponId: { type: string }
         addressId: { type: string }
+        remark: { type: string }
+        shippingFee: { type: number }
         paymentMethod:
           type: string
           enum: [alipay, wechat, card]

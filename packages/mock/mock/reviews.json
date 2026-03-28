@@ -1,0 +1,5 @@
+[
+  {"id":"r1","productId":"p1","user":"星***7","rating":5,"content":"穿着很舒服，尺码标准。","createdAt":"2026-03-28"},
+  {"id":"r2","productId":"p1","user":"晨***3","rating":4,"content":"脚感不错，通勤也百搭。","createdAt":"2026-03-22"},
+  {"id":"r3","productId":"p2","user":"羽***9","rating":5,"content":"很轻很暖，做工很好。","createdAt":"2026-03-19"}
+]

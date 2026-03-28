@@ -1,0 +1,20 @@
+{
+  "banners": [
+    {"id": "b1", "title": "春季焕新节", "subtitle": "每满299减50", "image": "https://picsum.photos/seed/banner1/1200/420"},
+    {"id": "b2", "title": "数码尖货周", "subtitle": "爆款低至5折", "image": "https://picsum.photos/seed/banner2/1200/420"}
+  ],
+  "activities": [
+    {"id": "ac1", "title": "限时秒杀", "desc": "每日10点 / 20点两场", "badge": "HOT"},
+    {"id": "ac2", "title": "品牌会员日", "desc": "满599享12期免息", "badge": "NEW"},
+    {"id": "ac3", "title": "9.9包邮专区", "desc": "新人专享优选", "badge": "省"}
+  ],
+  "hotRank": [
+    {"id": "h1", "name": "蓝牙降噪耳机", "score": "热度98%"},
+    {"id": "h2", "name": "Air Flex 运动鞋", "score": "热度96%"},
+    {"id": "h3", "name": "智能保温杯", "score": "热度93%"}
+  ],
+  "newcomer": [
+    {"id": "n1", "title": "新人礼包", "perk": "88元券包"},
+    {"id": "n2", "title": "首单包邮", "perk": "无门槛"}
+  ]
+}

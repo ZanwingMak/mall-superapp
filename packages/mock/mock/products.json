@@ -2,46 +2,91 @@
   {
     "id": "p1",
     "title": "Air Flex 运动鞋",
+    "subtitle": "轻弹缓震，全天舒适",
     "price": 399,
+    "originPrice": 499,
     "image": "https://picsum.photos/seed/shoe/400/300",
+    "images": [
+      "https://picsum.photos/seed/shoe/1000/800",
+      "https://picsum.photos/seed/shoe2/1000/800",
+      "https://picsum.photos/seed/shoe3/1000/800"
+    ],
     "category": "fashion",
     "tags": ["爆款", "轻便"],
-    "stock": 36
+    "stock": 36,
+    "soldCount": 2390,
+    "rating": 4.8,
+    "description": "高回弹中底，透气鞋面，通勤与运动两相宜。",
+    "specs": [
+      { "name": "颜色", "values": ["云白", "曜黑", "雾灰"] },
+      { "name": "尺码", "values": ["40", "41", "42", "43"] }
+    ]
   },
   {
     "id": "p2",
     "title": "轻薄羽绒服",
+    "subtitle": "90%白鸭绒，轻暖不臃肿",
     "price": 699,
+    "originPrice": 899,
     "image": "https://picsum.photos/seed/jacket/400/300",
+    "images": ["https://picsum.photos/seed/jacket/1000/800", "https://picsum.photos/seed/jacket2/1000/800"],
     "category": "fashion",
     "tags": ["新品", "保暖"],
-    "stock": 20
+    "stock": 20,
+    "soldCount": 1120,
+    "rating": 4.7,
+    "description": "防泼水面料，立体剪裁。",
+    "specs": [
+      { "name": "颜色", "values": ["奶油白", "曜石黑"] },
+      { "name": "尺码", "values": ["M", "L", "XL"] }
+    ]
   },
   {
     "id": "p3",
     "title": "智能保温杯",
+    "subtitle": "实时温显，304不锈钢",
     "price": 129,
+    "originPrice": 169,
     "image": "https://picsum.photos/seed/cup/400/300",
+    "images": ["https://picsum.photos/seed/cup/1000/800"],
     "category": "home",
     "tags": ["智能", "高颜值"],
-    "stock": 88
+    "stock": 88,
+    "soldCount": 3880,
+    "rating": 4.9,
+    "description": "一触即显温，12小时长效保温。",
+    "specs": [{ "name": "颜色", "values": ["薄荷绿", "奶白"] }]
   },
   {
     "id": "p4",
     "title": "蓝牙降噪耳机",
+    "subtitle": "40dB深度降噪",
     "price": 899,
+    "originPrice": 1099,
     "image": "https://picsum.photos/seed/headphone/400/300",
+    "images": ["https://picsum.photos/seed/headphone/1000/800"],
     "category": "digital",
     "tags": ["旗舰", "降噪"],
-    "stock": 15
+    "stock": 15,
+    "soldCount": 980,
+    "rating": 4.8,
+    "description": "自适应降噪，Hi-Res 音质。",
+    "specs": [{ "name": "颜色", "values": ["深空灰", "珍珠白"] }]
   },
   {
     "id": "p5",
     "title": "精品挂耳咖啡 30包",
+    "subtitle": "产地直采，醇香回甘",
     "price": 89,
+    "originPrice": 119,
     "image": "https://picsum.photos/seed/coffee/400/300",
+    "images": ["https://picsum.photos/seed/coffee/1000/800"],
     "category": "food",
     "tags": ["提神", "口粮"],
-    "stock": 120
+    "stock": 120,
+    "soldCount": 4980,
+    "rating": 4.9,
+    "description": "中度烘焙，冷热皆宜。",
+    "specs": [{ "name": "规格", "values": ["30包", "60包"] }]
   }
 ]
