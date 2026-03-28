@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "doctor": "bash ./scripts/check-rust.sh",
+    "tauri": "tauri",
     "dev": "pnpm run doctor && pnpm tauri dev",
     "build": "pnpm run doctor && pnpm tauri build",
     "lint": "echo desktop lint",
