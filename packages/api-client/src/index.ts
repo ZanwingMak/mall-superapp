@@ -67,6 +67,36 @@ export interface CheckoutPayload {
   paymentMethod: 'alipay' | 'wechat' | 'card';
   remark?: string;
   shippingFee?: number;
+  invoice?: {
+    needInvoice: boolean;
+    type?: 'personal' | 'company';
+    title?: string;
+    taxNo?: string;
+  };
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  content: string;
+  type: 'logistics' | 'promo' | 'price_drop' | 'service';
+  createdAt: string;
+  read: boolean;
+}
+
+export interface FootprintItem {
+  id: string;
+  viewedAt: string;
+  source: 'home' | 'search' | 'activity' | 'recommend';
+}
+
+export interface CampaignDetail {
+  id: string;
+  title: string;
+  period: string;
+  desc: string;
+  rules: string[];
+  highlights: string[];
 }
 
 const fallback = {
@@ -102,7 +132,21 @@ const fallback = {
   ] as Review[],
   coupons: [{ id: 'c1', title: '满300减30', discount: 30, minSpend: 300, expireAt: '2026-04-30' }] as Coupon[],
   addresses: [{ id: 'a1', name: '张三', phone: '138', city: '上海', detail: '张江路', isDefault: true }] as Address[],
-  orders: [{ id: 'o1', amount: 399, status: 'paid', createdAt: '2026-03-29', itemCount: 1 }] as Order[]
+  orders: [{ id: 'o1', amount: 399, status: 'paid', createdAt: '2026-03-29', itemCount: 1 }] as Order[],
+  notifications: [
+    { id: 'n1', title: '订单已发货', content: '您的订单已发货，预计明日送达。', type: 'logistics', createdAt: '2026-03-29 01:30', read: false }
+  ] as NotificationItem[],
+  footprints: [
+    { id: 'p1', viewedAt: '2026-03-29 00:58', source: 'search' }
+  ] as FootprintItem[],
+  campaign: {
+    id: 'a1',
+    title: '限时秒杀',
+    period: '每日 10:00 / 20:00',
+    desc: '爆款商品限时直降，库存有限。',
+    rules: ['每人限购 2 件', '付款超时自动取消'],
+    highlights: ['3 折起', '价保']
+  } as CampaignDetail
 };
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
@@ -168,6 +212,30 @@ export async function fetchOrders(status?: string) {
   }
 }
 
+export async function fetchNotifications() {
+  try {
+    return await request<NotificationItem[]>('/api/notifications');
+  } catch {
+    return fallback.notifications;
+  }
+}
+
+export async function fetchFootprints() {
+  try {
+    return await request<FootprintItem[]>('/api/footprints');
+  } catch {
+    return fallback.footprints;
+  }
+}
+
+export async function fetchCampaignDetail(id: string) {
+  try {
+    return await request<CampaignDetail>(`/api/campaigns/${id}`);
+  } catch {
+    return fallback.campaign;
+  }
+}
+
 export function useHomeQuery() {
   return useQuery({ queryKey: ['home'], queryFn: fetchHome });
 }
@@ -194,6 +262,18 @@ export function useAddressesQuery() {
 
 export function useOrdersQuery(status?: string) {
   return useQuery({ queryKey: ['orders', status], queryFn: () => fetchOrders(status) });
+}
+
+export function useNotificationsQuery() {
+  return useQuery({ queryKey: ['notifications'], queryFn: fetchNotifications });
+}
+
+export function useFootprintsQuery() {
+  return useQuery({ queryKey: ['footprints'], queryFn: fetchFootprints });
+}
+
+export function useCampaignDetailQuery(id: string) {
+  return useQuery({ queryKey: ['campaign', id], queryFn: () => fetchCampaignDetail(id), enabled: Boolean(id) });
 }
 
 export function useCheckoutMutation() {

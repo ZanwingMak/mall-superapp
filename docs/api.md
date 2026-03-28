@@ -1,4 +1,4 @@
-# API 文档（v0.3.0）
+# API 文档（v0.4.0）
 
 OpenAPI: `packages/mock/openapi/mall.yaml`
 
@@ -10,7 +10,10 @@ OpenAPI: `packages/mock/openapi/mall.yaml`
 - `GET /api/coupons` 优惠券列表
 - `GET /api/addresses` 收货地址列表
 - `GET /api/orders?status=` 订单列表（all/pending/paid/shipping/done）
-- `POST /api/checkout` 提交订单
+- `GET /api/notifications` 通知中心列表
+- `GET /api/footprints` 浏览足迹
+- `GET /api/campaigns/{id}` 活动详情（规则/亮点/时段）
+- `POST /api/checkout` 提交订单（支持 invoice 信息）
 
 ## 契约演进策略
 - 使用 MSW + JSON mock 驱动前端迭代，OpenAPI 作为单一契约源。

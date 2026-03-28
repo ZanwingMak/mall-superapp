@@ -28,6 +28,9 @@ const server = setupServer(
   http.get('/api/coupons', () => HttpResponse.json([])),
   http.get('/api/addresses', () => HttpResponse.json([{ id: 'a1', name: '张三', phone: '138', city: '上海', detail: '测试路', isDefault: true }])),
   http.get('/api/orders', () => HttpResponse.json([])),
+  http.get('/api/notifications', () => HttpResponse.json([])),
+  http.get('/api/footprints', () => HttpResponse.json([])),
+  http.get('/api/campaigns/:id', () => HttpResponse.json({ id: 'a1', title: '限时秒杀', period: '每日', desc: '活动详情', rules: ['r1'], highlights: ['h1'] })),
   http.post('/api/checkout', () => HttpResponse.json({ orderId: 'o1', status: 'success' }))
 );
 

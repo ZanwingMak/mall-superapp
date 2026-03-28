@@ -1,8 +1,11 @@
 import {
   useAddressesQuery,
+  useCampaignDetailQuery,
   useCheckoutMutation,
   useCouponsQuery,
+  useFootprintsQuery,
   useHomeQuery,
+  useNotificationsQuery,
   useOrdersQuery,
   useProductDetailQuery,
   useProductsQuery,
@@ -18,6 +21,14 @@ const categoryOptions = [
   { label: '数码', value: 'digital' },
   { label: '家居', value: 'home' },
   { label: '食品', value: 'food' }
+] as const;
+
+const sortOptions = [
+  { label: '智能推荐', value: 'smart' },
+  { label: '销量优先', value: 'sold' },
+  { label: '评分优先', value: 'rating' },
+  { label: '价格升序', value: 'price-asc' },
+  { label: '价格降序', value: 'price-desc' }
 ] as const;
 
 const orderTabs = [
@@ -48,12 +59,15 @@ export default function App() {
   const { path, go } = usePath();
   const { data: products = [], isLoading: productsLoading, isError } = useProductsQuery();
   const { data: home } = useHomeQuery();
+  const { data: notifications = [] } = useNotificationsQuery();
   const { favorites, toggleFavorite } = useCartStore();
 
   const [keyword, setKeyword] = useState('');
   const [category, setCategory] = useState<(typeof categoryOptions)[number]['value']>('all');
+  const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]['value']>('smart');
   const [bannerIndex, setBannerIndex] = useState(0);
   const [toast, setToast] = useState('');
+  const [compareIds, setCompareIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!home?.banners?.length) return;
@@ -63,24 +77,55 @@ export default function App() {
 
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(''), 1400);
+    const timer = setTimeout(() => setToast(''), 1600);
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const filteredProducts = useMemo(
-    () =>
-      products.filter((p) => {
-        const hitKeyword = p.title.toLowerCase().includes(keyword.toLowerCase());
-        const hitCategory = category === 'all' || p.category === category;
-        return hitKeyword && hitCategory;
-      }),
-    [products, keyword, category]
-  );
+  const filteredProducts = useMemo(() => {
+    const list = products.filter((p) => {
+      const hitKeyword = p.title.toLowerCase().includes(keyword.toLowerCase());
+      const hitCategory = category === 'all' || p.category === category;
+      return hitKeyword && hitCategory;
+    });
+
+    return [...list].sort((a, b) => {
+      const scoreA = (a.rating || 0) * 20 + (a.soldCount || 0) / 100;
+      const scoreB = (b.rating || 0) * 20 + (b.soldCount || 0) / 100;
+      switch (sortBy) {
+        case 'sold':
+          return (b.soldCount || 0) - (a.soldCount || 0);
+        case 'rating':
+          return (b.rating || 0) - (a.rating || 0);
+        case 'price-asc':
+          return a.price - b.price;
+        case 'price-desc':
+          return b.price - a.price;
+        case 'smart':
+        default:
+          return scoreB - scoreA;
+      }
+    });
+  }, [products, keyword, category, sortBy]);
+
+  const compareProducts = products.filter((p) => compareIds.includes(p.id));
+
+  const toggleCompare = (id: string) => {
+    setCompareIds((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= 3) {
+        setToast('最多对比 3 件商品');
+        return prev;
+      }
+      return [...prev, id];
+    });
+  };
 
   const onAddCart = (p: (typeof products)[number]) => {
     useCartStore.getState().addItem({ id: p.id, name: p.title, image: p.image, price: p.price, originPrice: p.originPrice });
     setToast('已加入购物车');
   };
+
+  const unreadCount = notifications.filter((x) => !x.read).length;
 
   const Header = (
     <header className="sticky top-0 z-10 mb-4 border-b border-slate-100 bg-white/95 backdrop-blur">
@@ -90,11 +135,14 @@ export default function App() {
         </button>
         <input
           aria-label="搜索商品"
-          className="h-10 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none focus:border-[var(--color-brand)]"
+          className="h-10 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-[var(--color-brand)] focus:bg-white"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="搜索商品、品牌、品类"
         />
+        <Button variant="secondary" onClick={() => go('/notifications')}>
+          消息{unreadCount ? `(${unreadCount})` : ''}
+        </Button>
         <Button variant="secondary" onClick={() => go('/cart')}>
           购物车
         </Button>
@@ -108,7 +156,7 @@ export default function App() {
   if (path.startsWith('/product/')) {
     return (
       <PageWrap header={Header} toast={toast}>
-        <ProductDetailPage id={path.replace('/product/', '')} go={go} onBuyNowToast={setToast} />
+        <ProductDetailPage id={path.replace('/product/', '')} go={go} onBuyNowToast={setToast} onToggleCompare={toggleCompare} compareIds={compareIds} />
       </PageWrap>
     );
   }
@@ -118,6 +166,8 @@ export default function App() {
   if (path === '/orders') return <PageWrap header={Header} toast={toast}><OrdersPage go={go} /></PageWrap>;
   if (path === '/favorites') return <PageWrap header={Header} toast={toast}><FavoritesPage go={go} products={products} /></PageWrap>;
   if (path === '/addresses') return <PageWrap header={Header} toast={toast}><AddressesPage /></PageWrap>;
+  if (path === '/notifications') return <PageWrap header={Header} toast={toast}><NotificationsPage /></PageWrap>;
+  if (path === '/footprints') return <PageWrap header={Header} toast={toast}><FootprintsPage go={go} products={products} /></PageWrap>;
   if (path === '/me') return <PageWrap header={Header} toast={toast}><MePage go={go} /></PageWrap>;
 
   return (
@@ -142,11 +192,7 @@ export default function App() {
             <SectionTitle>活动专区</SectionTitle>
             <div className="grid gap-2 md:grid-cols-3">
               {(home?.activities || []).map((x) => (
-                <div key={x.id} className="rounded-2xl bg-[var(--color-brand-soft)] p-3">
-                  <Tag tone="hot">{x.badge}</Tag>
-                  <p className="mt-2 text-sm font-semibold">{x.title}</p>
-                  <p className="text-xs text-slate-500">{x.desc}</p>
-                </div>
+                <ActivityCard key={x.id} id={x.id} title={x.title} desc={x.desc} badge={x.badge} />
               ))}
             </div>
           </Card>
@@ -167,7 +213,7 @@ export default function App() {
           <SectionTitle>分类宫格</SectionTitle>
           <div className="grid grid-cols-4 gap-2 md:grid-cols-8">
             {categories.map((x) => (
-              <div key={x} className="rounded-2xl bg-slate-50 py-3 text-center text-xs md:text-sm">{x}</div>
+              <div key={x} className="rounded-2xl bg-slate-50 py-3 text-center text-xs transition hover:bg-slate-100 md:text-sm">{x}</div>
             ))}
           </div>
         </Card>
@@ -178,12 +224,20 @@ export default function App() {
             {categoryOptions.map((option) => (
               <button
                 key={option.value}
-                className={`rounded-xl px-3 py-1 text-sm ${category === option.value ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`}
+                className={`rounded-xl px-3 py-1 text-sm transition ${category === option.value ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                 onClick={() => setCategory(option.value)}
               >
                 {option.label}
               </button>
             ))}
+            <select
+              aria-label="智能排序"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as (typeof sortOptions)[number]['value'])}
+              className="ml-auto rounded-xl border border-slate-200 px-3 py-1 text-sm"
+            >
+              {sortOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
           </div>
           {productsLoading ? (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-64" />)}</div>
@@ -192,7 +246,7 @@ export default function App() {
           ) : (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {filteredProducts.map((p) => (
-                <div key={p.id}>
+                <div key={p.id} className="rounded-3xl border border-transparent p-1 transition hover:border-slate-200">
                   <button className="w-full text-left" onClick={() => go(`/product/${p.id}`)}>
                     <ProductCard
                       title={p.title}
@@ -208,11 +262,16 @@ export default function App() {
                     <Button className="flex-1" onClick={() => onAddCart(p)}>加入购物车</Button>
                     <Button variant="secondary" onClick={() => toggleFavorite(p.id)}>{favorites.includes(p.id) ? '♥' : '♡'}</Button>
                   </div>
+                  <button className="mt-2 w-full rounded-xl bg-slate-100 py-1 text-xs text-slate-600 hover:bg-slate-200" onClick={() => toggleCompare(p.id)}>
+                    {compareIds.includes(p.id) ? '取消对比' : '加入对比'}
+                  </button>
                 </div>
               ))}
             </div>
           )}
         </Card>
+
+        {compareProducts.length ? <ComparePanel products={compareProducts} onToggleCompare={toggleCompare} /> : null}
       </main>
     </PageWrap>
   );
@@ -228,7 +287,67 @@ function PageWrap({ header, toast, children }: { header: React.ReactNode; toast:
   );
 }
 
-function ProductDetailPage({ id, go, onBuyNowToast }: { id: string; go: (path: string) => void; onBuyNowToast: (x: string) => void }) {
+function ActivityCard({ id, title, desc, badge }: { id: string; title: string; desc: string; badge: string }) {
+  const { data, isLoading } = useCampaignDetailQuery(id);
+  return (
+    <details className="group rounded-2xl bg-[var(--color-brand-soft)] p-3 transition open:bg-orange-50">
+      <summary className="cursor-pointer list-none">
+        <Tag tone="hot">{badge}</Tag>
+        <p className="mt-2 text-sm font-semibold">{title}</p>
+        <p className="text-xs text-slate-500">{desc}</p>
+      </summary>
+      <div className="mt-3 rounded-xl bg-white/80 p-3 text-xs text-slate-600">
+        {isLoading ? <Skeleton className="h-14" /> : (
+          <>
+            <p className="font-medium text-slate-800">活动时间：{data?.period}</p>
+            <p className="mt-1">{data?.desc}</p>
+            <ul className="mt-2 list-disc pl-5">
+              {(data?.rules || []).slice(0, 2).map((r) => <li key={r}>{r}</li>)}
+            </ul>
+          </>
+        )}
+      </div>
+    </details>
+  );
+}
+
+function ComparePanel({ products, onToggleCompare }: { products: any[]; onToggleCompare: (id: string) => void }) {
+  return (
+    <Card className="p-4">
+      <SectionTitle extra={<Tag tone="default">最多 3 件</Tag>}>商品对比</SectionTitle>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-slate-100 text-slate-500">
+              <th className="p-2">维度</th>
+              {products.map((p) => <th key={p.id} className="p-2">{p.title}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b border-slate-100"><td className="p-2 text-slate-500">价格</td>{products.map((p) => <td key={p.id} className="p-2 font-semibold text-[var(--color-brand)]">¥{p.price}</td>)}</tr>
+            <tr className="border-b border-slate-100"><td className="p-2 text-slate-500">评分</td>{products.map((p) => <td key={p.id} className="p-2">{p.rating || '-'}</td>)}</tr>
+            <tr className="border-b border-slate-100"><td className="p-2 text-slate-500">销量</td>{products.map((p) => <td key={p.id} className="p-2">{p.soldCount || '-'}</td>)}</tr>
+            <tr><td className="p-2 text-slate-500">操作</td>{products.map((p) => <td key={p.id} className="p-2"><Button size="sm" variant="ghost" onClick={() => onToggleCompare(p.id)}>移除</Button></td>)}</tr>
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+function ProductDetailPage({
+  id,
+  go,
+  onBuyNowToast,
+  onToggleCompare,
+  compareIds
+}: {
+  id: string;
+  go: (path: string) => void;
+  onBuyNowToast: (x: string) => void;
+  onToggleCompare: (id: string) => void;
+  compareIds: string[];
+}) {
   const { data: product } = useProductDetailQuery(id);
   const { data: reviews = [] } = useReviewsQuery(id);
   const [selected, setSelected] = useState<Record<string, string>>({});
@@ -265,6 +384,11 @@ function ProductDetailPage({ id, go, onBuyNowToast }: { id: string; go: (path: s
               </div>
             </div>
           ))}
+          <div className="mt-3">
+            <Button size="sm" variant="secondary" onClick={() => onToggleCompare(product.id)}>
+              {compareIds.includes(product.id) ? '取消对比' : '加入对比'}
+            </Button>
+          </div>
           <div className="mt-6 flex gap-2">
             <Button
               className="flex-1"
@@ -361,6 +485,11 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
   const [selectedCoupon, setSelectedCoupon] = useState('');
   const [selectedAddress, setSelectedAddress] = useState(addresses.find((x) => x.isDefault)?.id || '');
   const [remark, setRemark] = useState('');
+  const [needInvoice, setNeedInvoice] = useState(false);
+  const [invoiceType, setInvoiceType] = useState<'personal' | 'company'>('personal');
+  const [invoiceTitle, setInvoiceTitle] = useState('');
+  const [invoiceTaxNo, setInvoiceTaxNo] = useState('');
+
   const shipping = sourceItems.length ? 8 : 0;
   const subtotal = sourceItems.reduce((s, i) => s + i.price * i.count, 0);
   const couponAmount = coupons.find((x) => x.id === selectedCoupon && subtotal >= x.minSpend)?.discount ?? 0;
@@ -373,7 +502,13 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
       addressId: selectedAddress,
       paymentMethod,
       remark,
-      shippingFee: shipping
+      shippingFee: shipping,
+      invoice: {
+        needInvoice,
+        type: needInvoice ? invoiceType : undefined,
+        title: needInvoice ? invoiceTitle : undefined,
+        taxNo: needInvoice && invoiceType === 'company' ? invoiceTaxNo : undefined
+      }
     });
     useCartStore.getState().setBuyNowItem(undefined);
     useCartStore.getState().clear();
@@ -405,6 +540,21 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
         </select>
         <label className="mt-3 block text-sm">订单备注</label>
         <textarea value={remark} onChange={(e) => setRemark(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 p-2 text-sm" rows={3} placeholder="如：工作日送货" />
+      </Card>
+
+      <Card className="p-4">
+        <SectionTitle>发票信息</SectionTitle>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={needInvoice} onChange={(e) => setNeedInvoice(e.target.checked)} /> 需要发票</label>
+        {needInvoice ? (
+          <div className="mt-3 space-y-2 text-sm">
+            <div className="flex gap-2">
+              <Button size="sm" variant={invoiceType === 'personal' ? 'primary' : 'secondary'} onClick={() => setInvoiceType('personal')}>个人</Button>
+              <Button size="sm" variant={invoiceType === 'company' ? 'primary' : 'secondary'} onClick={() => setInvoiceType('company')}>企业</Button>
+            </div>
+            <input className="w-full rounded-xl border border-slate-200 px-3 py-2" placeholder={invoiceType === 'company' ? '公司抬头' : '个人姓名'} value={invoiceTitle} onChange={(e) => setInvoiceTitle(e.target.value)} />
+            {invoiceType === 'company' ? <input className="w-full rounded-xl border border-slate-200 px-3 py-2" placeholder="税号" value={invoiceTaxNo} onChange={(e) => setInvoiceTaxNo(e.target.value)} /> : null}
+          </div>
+        ) : null}
       </Card>
 
       <Card className="p-4">
@@ -444,6 +594,8 @@ function MePage({ go }: { go: (x: string) => void }) {
       <Card className="grid grid-cols-2 gap-2 p-4 md:grid-cols-4">{[
         ['我的收藏', '/favorites'],
         ['收货地址', '/addresses'],
+        ['消息中心', '/notifications'],
+        ['浏览足迹', '/footprints'],
         ['购物车', '/cart'],
         ['首页', '/']
       ].map(([name, url]) => <button key={name} className="rounded-xl bg-slate-50 py-3 text-sm" onClick={() => go(url)}>{name}</button>)}</Card>
@@ -454,14 +606,26 @@ function MePage({ go }: { go: (x: string) => void }) {
 function OrdersPage({ go }: { go: (x: string) => void }) {
   const [tab, setTab] = useState('all');
   const { data: orders = [] } = useOrdersQuery(tab);
+  const [serviceApplyId, setServiceApplyId] = useState('');
+  const [serviceReason, setServiceReason] = useState('');
 
   return (
     <main className="mx-auto max-w-6xl p-3 md:p-4">
       <Card className="p-4">
         <SectionTitle extra={<Button variant="ghost" onClick={() => go('/me')}>返回个人中心</Button>}>我的订单</SectionTitle>
         <div className="mb-4 flex gap-2">{orderTabs.map((t) => <button key={t.key} className={`rounded-xl px-3 py-1 text-sm ${tab === t.key ? 'bg-slate-900 text-white' : 'bg-slate-100'}`} onClick={() => setTab(t.key)}>{t.label}</button>)}</div>
-        <div className="space-y-3">{orders.map((o) => <div key={o.id} className="rounded-2xl border border-slate-100 p-3 text-sm"><div className="flex justify-between"><span>订单号 {o.id}</span><span>{o.status}</span></div><div className="mt-1 flex justify-between text-slate-500"><span>{o.createdAt}</span><span>{o.itemCount} 件 · ¥{o.amount}</span></div></div>)}</div>
+        <div className="space-y-3">{orders.map((o) => <div key={o.id} className="rounded-2xl border border-slate-100 p-3 text-sm"><div className="flex justify-between"><span>订单号 {o.id}</span><span>{o.status}</span></div><div className="mt-1 flex justify-between text-slate-500"><span>{o.createdAt}</span><span>{o.itemCount} 件 · ¥{o.amount}</span></div><div className="mt-2"><Button size="sm" variant="secondary" onClick={() => setServiceApplyId(o.id)}>申请售后</Button></div></div>)}</div>
       </Card>
+      {serviceApplyId ? (
+        <Card className="mt-4 p-4">
+          <SectionTitle>售后申请（{serviceApplyId}）</SectionTitle>
+          <textarea className="w-full rounded-xl border border-slate-200 p-2 text-sm" rows={3} placeholder="请填写售后原因，例如：尺码不合适" value={serviceReason} onChange={(e) => setServiceReason(e.target.value)} />
+          <div className="mt-3 flex gap-2">
+            <Button onClick={() => { setServiceApplyId(''); setServiceReason(''); }}>提交申请</Button>
+            <Button variant="ghost" onClick={() => setServiceApplyId('')}>取消</Button>
+          </div>
+        </Card>
+      ) : null}
     </main>
   );
 }
@@ -475,4 +639,61 @@ function FavoritesPage({ go, products }: { go: (x: string) => void; products: an
 function AddressesPage() {
   const { data: addresses = [] } = useAddressesQuery();
   return <main className="mx-auto max-w-6xl p-3 md:p-4"><Card className="p-4"><SectionTitle>收货地址管理</SectionTitle><div className="space-y-3">{addresses.map((a) => <div key={a.id} className="rounded-2xl border border-slate-100 p-3 text-sm"><p className="font-medium">{a.name} {a.phone} {a.isDefault ? <Tag tone="success">默认</Tag> : null}</p><p className="mt-1 text-slate-500">{a.city} {a.detail}</p></div>)}</div></Card></main>;
+}
+
+function NotificationsPage() {
+  const { data: notifications = [] } = useNotificationsQuery();
+  const [tab, setTab] = useState<'all' | 'unread'>('all');
+  const list = notifications.filter((x) => (tab === 'unread' ? !x.read : true));
+
+  return (
+    <main className="mx-auto max-w-6xl p-3 md:p-4">
+      <Card className="p-4">
+        <SectionTitle>消息通知中心</SectionTitle>
+        <div className="mb-3 flex gap-2">
+          <Button size="sm" variant={tab === 'all' ? 'primary' : 'secondary'} onClick={() => setTab('all')}>全部</Button>
+          <Button size="sm" variant={tab === 'unread' ? 'primary' : 'secondary'} onClick={() => setTab('unread')}>未读</Button>
+        </div>
+        {!list.length ? <EmptyState title="暂无消息" /> : (
+          <div className="space-y-2">
+            {list.map((n) => (
+              <div key={n.id} className={`rounded-2xl border p-3 text-sm ${n.read ? 'border-slate-100 bg-white' : 'border-orange-200 bg-orange-50'}`}>
+                <div className="flex items-center justify-between"><p className="font-medium">{n.title}</p><span className="text-xs text-slate-400">{n.createdAt}</span></div>
+                <p className="mt-1 text-slate-600">{n.content}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </main>
+  );
+}
+
+function FootprintsPage({ go, products }: { go: (x: string) => void; products: any[] }) {
+  const { data: footprints = [] } = useFootprintsQuery();
+  const list = footprints
+    .map((f) => ({ ...f, product: products.find((p) => p.id === f.id) }))
+    .filter((x) => x.product);
+
+  return (
+    <main className="mx-auto max-w-6xl p-3 md:p-4">
+      <Card className="p-4">
+        <SectionTitle>浏览足迹</SectionTitle>
+        {!list.length ? <EmptyState title="暂无足迹" /> : (
+          <div className="space-y-2">
+            {list.map((x) => (
+              <button key={`${x.id}-${x.viewedAt}`} className="flex w-full items-center gap-3 rounded-2xl bg-slate-50 p-3 text-left" onClick={() => go(`/product/${x.id}`)}>
+                <img src={x.product.image} alt={x.product.title} className="h-14 w-14 rounded-xl object-cover" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{x.product.title}</p>
+                  <p className="text-xs text-slate-500">来源：{x.source} · {x.viewedAt}</p>
+                </div>
+                <p className="text-sm font-semibold text-[var(--color-brand)]">¥{x.product.price}</p>
+              </button>
+            ))}
+          </div>
+        )}
+      </Card>
+    </main>
+  );
 }

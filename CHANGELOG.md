@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.4.0 - 2026-03-29
+
+### Added
+- 新增 **智能排序**：支持智能推荐、销量优先、评分优先、价格升/降序。
+- 新增 **商品对比**：首页+详情可加入对比，最多 3 件并支持维度表格查看。
+- 新增 **活动详情展开**：活动卡片可查看规则、时间与亮点信息（`/api/campaigns/{id}`）。
+- 新增 **消息通知中心**（`/notifications`）：未读筛选 + 类型化消息展示。
+- 新增 **浏览足迹**（`/footprints`）：按来源展示最近浏览并支持一键回看。
+- 新增 **发票信息**：结算页支持个人/企业抬头与税号填写。
+- 新增 **售后申请入口**：订单页可发起售后申请（mock 表单）。
+- Mock/API 扩展：`/api/notifications`、`/api/footprints`、`/api/campaigns/{id}`。
+
+### Changed
+- 视觉细节优化：卡片层次、hover/active 微交互、筛选/排序控件可读性提升。
+- 版本升级到 `0.4.0`。
+- CI 工作流强化：Tauri 构建增加 ubuntu 平台并对失败场景提供 fallback note artifact，避免阻断主流程。
+
+### Known limitations
+- 售后、发票、通知已为前台 mock 能力，尚未接入真实后端状态写回。
+- Tauri 在部分 runner 仍可能受系统依赖与签名条件影响，当前已降级为 best-effort + fallback 记录。
+
 ## v0.3.0 - 2026-03-29
 
 ### Added

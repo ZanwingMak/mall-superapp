@@ -1,0 +1,26 @@
+[
+  {
+    "id": "n1",
+    "title": "订单已发货",
+    "content": "您的订单 o20260328001 已由上海仓发出，预计明日送达。",
+    "type": "logistics",
+    "createdAt": "2026-03-29 01:30",
+    "read": false
+  },
+  {
+    "id": "n2",
+    "title": "专属券到账",
+    "content": "PLUS会员每月券已发放：满199减30（7天有效）。",
+    "type": "promo",
+    "createdAt": "2026-03-28 18:10",
+    "read": true
+  },
+  {
+    "id": "n3",
+    "title": "降价提醒",
+    "content": "您关注的「Air Flex 运动鞋」已降价 40 元。",
+    "type": "price_drop",
+    "createdAt": "2026-03-28 10:42",
+    "read": false
+  }
+]

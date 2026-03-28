@@ -5,6 +5,9 @@ import addresses from '../mock/addresses.json';
 import orders from '../mock/orders.json';
 import home from '../mock/home.json';
 import reviews from '../mock/reviews.json';
+import notifications from '../mock/notifications.json';
+import footprints from '../mock/footprints.json';
+import campaigns from '../mock/campaigns.json';
 
 export const handlers = [
   http.get('/api/home', () => HttpResponse.json(home)),
@@ -27,6 +30,13 @@ export const handlers = [
     const status = url.searchParams.get('status');
     if (!status || status === 'all') return HttpResponse.json(orders);
     return HttpResponse.json(orders.filter((x) => x.status === status));
+  }),
+  http.get('/api/notifications', () => HttpResponse.json(notifications)),
+  http.get('/api/footprints', () => HttpResponse.json(footprints)),
+  http.get('/api/campaigns/:id', ({ params }) => {
+    const campaign = campaigns.find((x) => x.id === params.id);
+    if (!campaign) return new HttpResponse(JSON.stringify({ message: 'Not found' }), { status: 404 });
+    return HttpResponse.json(campaign);
   }),
   http.post('/api/checkout', async ({ request }) => {
     const body = (await request.json()) as {

@@ -33,7 +33,10 @@ const server = setupServer(
   http.get('/api/addresses', () => HttpResponse.json([])),
   http.get('/api/orders', () => HttpResponse.json([])),
   http.get('/api/products/:id', () => HttpResponse.json({ id: 'p1', title: '测试商品', price: 100, image: 'https://x.y/1.png', category: 'fashion', tags: [], stock: 1 })),
-  http.get('/api/reviews', () => HttpResponse.json([]))
+  http.get('/api/reviews', () => HttpResponse.json([])),
+  http.get('/api/notifications', () => HttpResponse.json([])),
+  http.get('/api/footprints', () => HttpResponse.json([])),
+  http.get('/api/campaigns/:id', () => HttpResponse.json({ id: 'ac1', title: '限时秒杀', period: '每日', desc: '活动详情', rules: ['r1'], highlights: ['h1'] }))
 );
 
 beforeAll(() => server.listen());
