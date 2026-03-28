@@ -9,6 +9,7 @@ test('critical purchase flow works', async ({ page }) => {
   await page.getByRole('button', { name: '去结算' }).click();
 
   await page.getByLabel('收货地址').selectOption({ index: 1 });
+  await page.getByRole('checkbox', { name: '我已阅读并同意《交易条款》与《隐私政策》' }).check();
   await page.getByRole('button', { name: '提交订单' }).click();
 
   await expect(page.getByText('下单成功')).toBeVisible();

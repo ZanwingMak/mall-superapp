@@ -39,6 +39,15 @@ const orderTabs = [
 ] as const;
 
 const categories = ['潮流服饰', '数码好物', '居家精选', '食品生鲜', '美妆个护', '运动户外', '母婴亲子', '百货日用'];
+const quickFeeds = ['会员日每周三满199减30', '开学季数码会场最高12期免息', '晚8点秒杀专场已开启，库存告急'];
+const serviceEntries = ['售后进度', '退款管理', '发票助手', '在线客服', '会员权益', '隐私设置'];
+
+const orderStatusMeta: Record<string, { tone: string; progress: number }> = {
+  pending: { tone: 'text-amber-600', progress: 25 },
+  paid: { tone: 'text-sky-600', progress: 45 },
+  shipping: { tone: 'text-indigo-600', progress: 75 },
+  done: { tone: 'text-emerald-600', progress: 100 }
+};
 
 function usePath() {
   const [path, setPath] = useState(window.location.pathname || '/');
@@ -156,7 +165,7 @@ export default function App() {
   if (path.startsWith('/product/')) {
     return (
       <PageWrap header={Header} toast={toast}>
-        <ProductDetailPage id={path.replace('/product/', '')} go={go} onBuyNowToast={setToast} onToggleCompare={toggleCompare} compareIds={compareIds} />
+        <ProductDetailPage id={path.replace('/product/', '')} go={go} onBuyNowToast={setToast} onToggleCompare={toggleCompare} compareIds={compareIds} products={products} />
       </PageWrap>
     );
   }
@@ -185,6 +194,28 @@ export default function App() {
           ) : (
             <Skeleton className="h-44 w-full md:h-64" />
           )}
+        </Card>
+
+        <Card className="p-4">
+          <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr]">
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <p className="text-xs text-slate-500">站内快讯</p>
+              <p className="mt-1 text-sm font-medium">{quickFeeds[bannerIndex % quickFeeds.length]}</p>
+              <p className="mt-2 text-xs text-slate-500">今日下单转化率 +12.8% · 客单价 ¥268</p>
+            </div>
+            {(home?.newcomer || []).slice(0, 1).map((x) => (
+              <div key={x.id} className="rounded-2xl bg-[var(--color-brand-soft)] p-3">
+                <p className="text-xs text-slate-500">新人权益</p>
+                <p className="mt-1 text-sm font-semibold">{x.title}</p>
+                <p className="text-xs text-slate-500">{x.perk}</p>
+              </div>
+            ))}
+            <div className="rounded-2xl bg-slate-900 p-3 text-white">
+              <p className="text-xs text-slate-300">会员专享</p>
+              <p className="mt-1 text-sm font-semibold">PLUS 会员 95 折 + 极速退款</p>
+              <Button size="sm" className="mt-2">立即开通</Button>
+            </div>
+          </div>
         </Card>
 
         <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
@@ -340,26 +371,48 @@ function ProductDetailPage({
   go,
   onBuyNowToast,
   onToggleCompare,
-  compareIds
+  compareIds,
+  products
 }: {
   id: string;
   go: (path: string) => void;
   onBuyNowToast: (x: string) => void;
   onToggleCompare: (id: string) => void;
   compareIds: string[];
+  products: any[];
 }) {
   const { data: product } = useProductDetailQuery(id);
   const { data: reviews = [] } = useReviewsQuery(id);
   const [selected, setSelected] = useState<Record<string, string>>({});
+  const [previewImage, setPreviewImage] = useState('');
+  const [reviewTab, setReviewTab] = useState<'all' | 'withPic' | 'low'>('all');
 
   if (!product) return <div className="mx-auto max-w-6xl p-4"><Skeleton className="h-96" /></div>;
 
   const skuText = Object.entries(selected).map(([k, v]) => `${k}:${v}`).join(' / ');
+  const allSpecSelected = (product.specs || []).every((spec) => selected[spec.name]);
+  const images = product.images?.length ? product.images : [product.image];
+  const activeImage = previewImage || images[0];
+  const filteredReviews = reviews.filter((r) => {
+    if (reviewTab === 'withPic') return r.content.includes('图') || r.content.includes('晒');
+    if (reviewTab === 'low') return r.rating <= 3;
+    return true;
+  });
+  const recommendProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
 
   return (
     <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
       <Card className="grid gap-4 p-4 md:grid-cols-2">
-        <img src={product.images?.[0] || product.image} alt={product.title} className="h-72 w-full rounded-2xl object-cover md:h-[420px]" />
+        <div>
+          <img src={activeImage} alt={product.title} className="h-72 w-full rounded-2xl object-cover md:h-[420px]" />
+          <div className="mt-2 flex gap-2 overflow-auto">
+            {images.map((img) => (
+              <button key={img} onClick={() => setPreviewImage(img)} className={`overflow-hidden rounded-xl border ${activeImage === img ? 'border-[var(--color-brand)]' : 'border-slate-200'}`}>
+                <img src={img} alt="预览图" className="h-14 w-14 object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
         <div>
           <h1 className="text-2xl font-bold">{product.title}</h1>
           <p className="mt-1 text-sm text-slate-500">{product.subtitle}</p>
@@ -384,6 +437,7 @@ function ProductDetailPage({
               </div>
             </div>
           ))}
+          {(product.specs || []).length > 0 && !allSpecSelected ? <p className="mt-2 text-xs text-rose-500">请先选择完整规格后再下单</p> : null}
           <div className="mt-3">
             <Button size="sm" variant="secondary" onClick={() => onToggleCompare(product.id)}>
               {compareIds.includes(product.id) ? '取消对比' : '加入对比'}
@@ -392,6 +446,7 @@ function ProductDetailPage({
           <div className="mt-6 flex gap-2">
             <Button
               className="flex-1"
+              disabled={(product.specs || []).length > 0 && !allSpecSelected}
               onClick={() => {
                 useCartStore.getState().addItem({ id: product.id, name: product.title, image: product.image, price: product.price, originPrice: product.originPrice, skuText });
                 onBuyNowToast('加入购物车成功');
@@ -402,6 +457,7 @@ function ProductDetailPage({
             <Button
               variant="secondary"
               className="flex-1"
+              disabled={(product.specs || []).length > 0 && !allSpecSelected}
               onClick={() => {
                 useCartStore.getState().setBuyNowItem({ id: product.id, name: product.title, image: product.image, price: product.price, originPrice: product.originPrice, count: 1, selected: true, skuText });
                 go('/checkout');
@@ -417,15 +473,33 @@ function ProductDetailPage({
         <p className="text-sm text-slate-600">{product.description}</p>
       </Card>
       <Card className="p-4">
-        <SectionTitle>评价预览</SectionTitle>
+        <SectionTitle extra={<p className="text-sm text-amber-600">好评率 {reviews.length ? Math.round((reviews.filter((x) => x.rating >= 4).length / reviews.length) * 100) : 0}%</p>}>评价预览</SectionTitle>
+        <div className="mb-3 flex gap-2">
+          <Button size="sm" variant={reviewTab === 'all' ? 'primary' : 'secondary'} onClick={() => setReviewTab('all')}>全部({reviews.length})</Button>
+          <Button size="sm" variant={reviewTab === 'withPic' ? 'primary' : 'secondary'} onClick={() => setReviewTab('withPic')}>有图/追评</Button>
+          <Button size="sm" variant={reviewTab === 'low' ? 'primary' : 'secondary'} onClick={() => setReviewTab('low')}>低分评价</Button>
+        </div>
         <div className="space-y-3">
-          {reviews.slice(0, 3).map((r) => (
+          {filteredReviews.slice(0, 4).map((r) => (
             <div key={r.id} className="rounded-2xl bg-slate-50 p-3 text-sm">
               <p className="font-medium">{r.user} · ⭐ {r.rating}</p>
               <p className="mt-1 text-slate-600">{r.content}</p>
             </div>
           ))}
+          {!filteredReviews.length ? <EmptyState title="暂无匹配评价" desc="换个筛选试试" /> : null}
         </div>
+      </Card>
+      <Card className="p-4">
+        <SectionTitle>为你推荐</SectionTitle>
+        {!recommendProducts.length ? <EmptyState title="推荐生成中" desc="继续浏览获取更精准推荐" /> : (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {recommendProducts.map((p) => (
+              <button key={p.id} className="text-left" onClick={() => go(`/product/${p.id}`)}>
+                <ProductCard title={p.title} price={p.price} image={p.image} tags={p.tags} rating={p.rating} soldCount={p.soldCount} originPrice={p.originPrice} />
+              </button>
+            ))}
+          </div>
+        )}
       </Card>
     </main>
   );
@@ -434,6 +508,7 @@ function ProductDetailPage({
 function CartPage({ go }: { go: (x: string) => void }) {
   const { items, toggleSelect, toggleSelectAll, updateCount, removeItem, removeSelected } = useCartStore();
   const validItems = items.filter((x) => !x.invalid);
+  const invalidItems = items.filter((x) => x.invalid);
   const checkedItems = validItems.filter((x) => x.selected);
   const subtotal = checkedItems.reduce((s, i) => s + i.price * i.count, 0);
   const allChecked = !!validItems.length && checkedItems.length === validItems.length;
@@ -452,11 +527,12 @@ function CartPage({ go }: { go: (x: string) => void }) {
                 <p className="text-sm font-medium">{i.name}</p>
                 <p className="text-xs text-slate-500">{i.skuText || '默认规格'} {i.invalid ? '（已失效）' : ''}</p>
                 <p className="text-sm text-[var(--color-brand)]">¥{i.price}</p>
+                {i.count >= 99 ? <p className="text-xs text-amber-600">单品最多购买 99 件</p> : null}
               </div>
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="secondary" onClick={() => updateCount(i.id, i.count - 1)}>-</Button>
                 <span className="w-6 text-center text-sm">{i.count}</span>
-                <Button size="sm" variant="secondary" onClick={() => updateCount(i.id, i.count + 1)}>+</Button>
+                <Button size="sm" variant="secondary" disabled={i.count >= 99} onClick={() => updateCount(i.id, i.count + 1)}>+</Button>
               </div>
               <Button size="sm" variant="ghost" onClick={() => removeItem(i.id)}>删除</Button>
             </div>
@@ -465,7 +541,10 @@ function CartPage({ go }: { go: (x: string) => void }) {
         {items.length ? (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-100 bg-white p-3">
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={allChecked} onChange={(e) => toggleSelectAll(e.target.checked)} /> 全选</label>
-            <Button variant="ghost" onClick={removeSelected}>删除选中</Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" onClick={removeSelected}>删除选中</Button>
+              {invalidItems.length ? <Button variant="ghost" onClick={() => invalidItems.forEach((x) => removeItem(x.id))}>清理失效商品</Button> : null}
+            </div>
             <p className="text-sm">合计：<span className="text-lg font-bold text-[var(--color-brand)]">¥{subtotal.toFixed(2)}</span></p>
             <Button onClick={() => go('/checkout')} disabled={!checkedItems.length}>去结算</Button>
           </div>
@@ -489,6 +568,8 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
   const [invoiceType, setInvoiceType] = useState<'personal' | 'company'>('personal');
   const [invoiceTitle, setInvoiceTitle] = useState('');
   const [invoiceTaxNo, setInvoiceTaxNo] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const shipping = sourceItems.length ? 8 : 0;
   const subtotal = sourceItems.reduce((s, i) => s + i.price * i.count, 0);
@@ -496,6 +577,12 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
   const total = Math.max(subtotal - couponAmount + shipping, 0);
 
   const submit = async () => {
+    if (!selectedAddress) return setSubmitError('请选择收货地址');
+    if (needInvoice && !invoiceTitle.trim()) return setSubmitError('请完善发票抬头');
+    if (needInvoice && invoiceType === 'company' && !invoiceTaxNo.trim()) return setSubmitError('请填写企业税号');
+    if (!acceptedTerms) return setSubmitError('请先勾选并同意《交易条款》');
+
+    setSubmitError('');
     await checkout.mutateAsync({
       itemIds: sourceItems.map((x) => x.id),
       couponId: selectedCoupon || undefined,
@@ -523,6 +610,7 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
           <option value="">请选择地址</option>
           {addresses.map((a) => <option key={a.id} value={a.id}>{a.name} / {a.city} / {a.detail}</option>)}
         </select>
+        {!selectedAddress ? <p className="mt-2 text-xs text-rose-500">未选择地址将无法提交订单</p> : null}
       </Card>
 
       <Card className="p-4">
@@ -576,7 +664,9 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
           <p>优惠：-¥{couponAmount.toFixed(2)}</p>
           <p className="text-lg font-bold text-[var(--color-brand)]">应付总额：¥{total.toFixed(2)}</p>
         </div>
-        <Button className="mt-4 w-full" disabled={!sourceItems.length || !selectedAddress || checkout.isPending} onClick={submit}>{checkout.isPending ? '下单中...' : '提交订单'}</Button>
+        <label className="mt-3 flex items-center gap-2 text-xs text-slate-500"><input type="checkbox" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} /> 我已阅读并同意《交易条款》与《隐私政策》</label>
+        {submitError ? <p className="mt-2 text-xs text-rose-500">{submitError}</p> : null}
+        <Button className="mt-4 w-full" disabled={!sourceItems.length || checkout.isPending} onClick={submit}>{checkout.isPending ? '下单中...' : '提交订单'}</Button>
       </Card>
     </main>
   );
@@ -587,10 +677,23 @@ function SuccessPage({ go }: { go: (x: string) => void }) {
 }
 
 function MePage({ go }: { go: (x: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [profile, setProfile] = useState({ nickname: '张三', phone: '138****8888', bio: '热爱品质生活与数码好物' });
+
   return (
     <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
-      <Card className="p-4"><div className="flex items-center gap-3"><img src="https://picsum.photos/seed/avatar/120/120" className="h-14 w-14 rounded-full" /><div><p className="font-semibold">张三</p><p className="text-xs text-slate-500">PLUS 会员 · 成长值 3820</p></div></div></Card>
+      <Card className="p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3"><img src="https://picsum.photos/seed/avatar/120/120" className="h-14 w-14 rounded-full" /><div><p className="font-semibold">{profile.nickname}</p><p className="text-xs text-slate-500">{profile.phone} · PLUS 会员 · 成长值 3820</p></div></div>
+          <Button size="sm" variant="secondary" onClick={() => setEditing((x) => !x)}>{editing ? '完成' : '编辑资料'}</Button>
+        </div>
+        {editing ? <div className="mt-3 grid gap-2 text-sm md:grid-cols-2"><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.nickname} onChange={(e) => setProfile((p) => ({ ...p, nickname: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2 md:col-span-2" value={profile.bio} onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))} /></div> : <p className="mt-2 text-xs text-slate-500">{profile.bio}</p>}
+      </Card>
       <Card className="p-4"><SectionTitle>我的订单</SectionTitle><div className="grid grid-cols-4 gap-2 text-center text-sm">{orderTabs.slice(1).map((t) => <button key={t.key} className="rounded-xl bg-slate-50 py-3" onClick={() => go('/orders')}>{t.label}</button>)}</div></Card>
+      <Card className="p-4">
+        <SectionTitle>服务中心</SectionTitle>
+        <div className="grid grid-cols-3 gap-2 text-center text-sm md:grid-cols-6">{serviceEntries.map((name) => <button key={name} className="rounded-xl bg-slate-50 py-3">{name}</button>)}</div>
+      </Card>
       <Card className="grid grid-cols-2 gap-2 p-4 md:grid-cols-4">{[
         ['我的收藏', '/favorites'],
         ['收货地址', '/addresses'],
@@ -614,7 +717,11 @@ function OrdersPage({ go }: { go: (x: string) => void }) {
       <Card className="p-4">
         <SectionTitle extra={<Button variant="ghost" onClick={() => go('/me')}>返回个人中心</Button>}>我的订单</SectionTitle>
         <div className="mb-4 flex gap-2">{orderTabs.map((t) => <button key={t.key} className={`rounded-xl px-3 py-1 text-sm ${tab === t.key ? 'bg-slate-900 text-white' : 'bg-slate-100'}`} onClick={() => setTab(t.key)}>{t.label}</button>)}</div>
-        <div className="space-y-3">{orders.map((o) => <div key={o.id} className="rounded-2xl border border-slate-100 p-3 text-sm"><div className="flex justify-between"><span>订单号 {o.id}</span><span>{o.status}</span></div><div className="mt-1 flex justify-between text-slate-500"><span>{o.createdAt}</span><span>{o.itemCount} 件 · ¥{o.amount}</span></div><div className="mt-2"><Button size="sm" variant="secondary" onClick={() => setServiceApplyId(o.id)}>申请售后</Button></div></div>)}</div>
+        {!orders.length ? <EmptyState title="该状态暂无订单" desc="可切换标签查看其他订单" /> : null}
+        <div className="space-y-3">{orders.map((o) => {
+          const meta = orderStatusMeta[o.status] || { tone: 'text-slate-600', progress: 40 };
+          return <div key={o.id} className="rounded-2xl border border-slate-100 p-3 text-sm"><div className="flex justify-between"><span>订单号 {o.id}</span><span className={meta.tone}>{o.status}</span></div><div className="mt-1 flex justify-between text-slate-500"><span>{o.createdAt}</span><span>{o.itemCount} 件 · ¥{o.amount}</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${meta.progress}%` }} /></div><div className="mt-2 flex gap-2"><Button size="sm" variant="secondary" onClick={() => setServiceApplyId(o.id)}>申请售后</Button><Button size="sm" variant="ghost">查看详情</Button></div></div>;
+        })}</div>
       </Card>
       {serviceApplyId ? (
         <Card className="mt-4 p-4">

@@ -49,7 +49,7 @@ export const useCartStore = create<CartState>((set) => ({
   removeItem: (id) => set((state) => ({ items: state.items.filter((x) => x.id !== id) })),
   updateCount: (id, count) =>
     set((state) => ({
-      items: state.items.map((x) => (x.id === id ? { ...x, count: Math.max(1, count) } : x))
+      items: state.items.map((x) => (x.id === id ? { ...x, count: Math.min(99, Math.max(1, count)) } : x))
     })),
   toggleSelect: (id) =>
     set((state) => ({ items: state.items.map((x) => (x.id === id ? { ...x, selected: !x.selected } : x)) })),
