@@ -1,18 +1,20 @@
-# AI Agent Handoff
+# AI Agent Handoff (v0.3.0)
 
 ## 本轮完成
-- 修复并规避 mobile Node25 问题：锁定 Node20 兼容路径（Volta/Docker/CI）。
-- 修复 Playwright 阻塞：改 strictPort + preview 场景启用 MSW。
-- 补齐 Tauri 交付链路：Rust 环境检查脚本 + macOS/Windows CI 打包。
-- 新增高价值功能：搜索筛选、收藏、优惠券、支付方式、地址选择、订单列表。
-- 扩展 API 契约与 mock 数据，增加单测/组件测/E2E。
+- 完成 Web 商城前台从 demo 到可展示版本升级，覆盖完整电商主流程。
+- 首页重构：导航、搜索、轮播、活动区、分类宫格、热门榜单、新人专区。
+- 商品链路完善：详情页（图文/规格/库存/评价）+ 加购反馈 + 立即购买。
+- 购物与结算升级：全选、删除、数量编辑、优惠券、地址入口、运费、备注、价格明细、成功页。
+- 个人中心完善：会员信息、订单入口、订单状态筛选、收藏页、地址管理。
+- 视觉系统升级：设计 token 与统一基础组件（Button/Card/Tag/Empty/Skeleton）。
+- Mock / OpenAPI 扩展：新增 home/detail/reviews 与订单状态筛选。
+- 测试扩展：新增组件与 store 测试，覆盖关键流程与状态操作。
 
-## 待确认/阻塞
-- 当前机器缺 Rust，无法本地执行 Tauri build。
-- Node 25 下 Taro 依然不稳定，需严格使用 Node 20。
-- GitHub Release 链接需在主仓库 push tag 后生成。
+## 已知事项
+- 用户已明确“忽略打包问题”，本轮聚焦功能与页面质量。
+- Release 链接需在主仓库推送 tag 并创建发布后才可得到公网 URL；本地已生成 web dist。
 
 ## 下一步建议
-1. 合并到 main 后触发 CI，确认 mobile + e2e + tauri 全绿。
-2. 创建 GitHub Release（v0.2.0）并检查 assets 完整性。
-3. 继续扩展真实后端接入（鉴权、下单、订单详情）。
+1. 联调真实后端（登录态、地址 CRUD、订单详情）。
+2. 加强商品详情媒体模块（视频、参数表、推荐流）。
+3. 增加视觉主题（深色模式）与无障碍优化。

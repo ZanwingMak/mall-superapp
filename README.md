@@ -1,41 +1,50 @@
-# Mall SuperApp (v0.2.0)
+# Mall SuperApp (v0.3.0)
 
-多端购物商城 monorepo，目标平台：Web、Windows、macOS、iOS、Android、鸿蒙、微信小程序。
+高完成度商城前台演示（Web 主交付），覆盖完整电商主链路：浏览 → 详情 → 加购/立即购买 → 结算 → 下单成功 → 订单查看。
+
+## 本版亮点
+- 首页重构：顶部导航/搜索、轮播 Banner、活动专区、分类宫格、热门榜单、新人专区。
+- 商品链路：详情页图文+规格选择+库存+评价预览，支持加入购物车反馈与立即购买直达结算。
+- 购物车与结算：全选/删除/数量增减/失效商品、优惠券、地址入口、运费、备注、价格明细。
+- 个人中心：会员卡片、订单入口、订单状态筛选、收藏页、地址管理页。
+- 视觉系统：设计 token（色板/阴影/圆角/间距）、统一按钮/卡片/标签/空状态/骨架屏、toast 状态反馈。
+- API 与 Mock：OpenAPI 扩展为首页与详情链路，MSW + JSON mock 可平滑迁移真实后端。
+
+## 关键页面路径（Web）
+- `/` 首页
+- `/product/:id` 商品详情
+- `/cart` 购物车
+- `/checkout` 结算页
+- `/success` 下单成功
+- `/me` 个人中心
+- `/orders` 订单页
+- `/favorites` 收藏页
+- `/addresses` 地址管理
 
 ## 项目结构
-- `apps/web` - Web 商城（搜索筛选、收藏、优惠券、地址、支付方式、订单列表）
-- `apps/mobile` - Taro 多端应用（Node 20 兼容构建）
-- `apps/desktop-tauri` - Tauri 桌面壳（含 Rust 环境检查脚本）
-- `packages/ui` - 共享 UI
-- `packages/store` - Zustand 状态
+- `apps/web` - Web 商城主应用（本次重点）
+- `apps/mobile` - Taro 多端应用
+- `apps/desktop-tauri` - Tauri 桌面壳
+- `packages/ui` - 共享 UI 与视觉基础组件
+- `packages/store` - Zustand 购物/收藏状态
 - `packages/api-client` - API 与 Query hooks
 - `packages/mock` - OpenAPI + Mock JSON + MSW
-- `.github/workflows/*` - CI / Tauri 打包 / Release 产物上传
 
 ## 快速开始
 ```bash
 pnpm install
-pnpm dev
+pnpm --filter @mall/web dev
 ```
 
-## 构建与测试
+## 测试与构建（Web）
 ```bash
-pnpm --filter @mall/web build
-pnpm --filter @mall/mobile build
 pnpm --filter @mall/web test
 pnpm --filter @mall/store test
+pnpm --filter @mall/web build
 pnpm --filter @mall/web e2e
 ```
 
 ## Node 兼容说明（Taro）
-Taro 4.x 在 Node 25 下会触发依赖解析异常，建议使用 Node 20：
+Taro 4.x 在 Node 25 下可能触发依赖解析异常，建议 Node 20：
 - 本地：`nvm use 20` 或 `volta install node@20`
 - Docker：`pnpm build:mobile:node20:docker`
-- CI：见 `.github/workflows/ci.yml` 的 `mobile-build-node20`
-
-## 桌面端（Tauri）
-```bash
-pnpm --filter @mall/desktop-tauri doctor
-pnpm --filter @mall/desktop-tauri build
-```
-如本机无 Rust，可直接通过 `.github/workflows/tauri.yml` 在 macOS / Windows 出包。
