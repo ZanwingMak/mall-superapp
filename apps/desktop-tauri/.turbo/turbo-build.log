@@ -1,5 +1,0 @@
-
-> @mall/desktop-tauri@0.1.0 build /Users/maizhenying/.openclaw/workspace/mall-superapp/apps/desktop-tauri
-> echo 'Install Rust toolchain then run: pnpm tauri build'
-
-Install Rust toolchain then run: pnpm tauri build

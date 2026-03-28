@@ -1,8 +1,0 @@
-
-> @mall/mobile@0.1.0 build /Users/maizhenying/.openclaw/workspace/mall-superapp/apps/mobile
-> taro build --type weapp
-
-👽 Taro v4.1.11
-
-找不到插件依赖 "@tarojs/plugin-platform-weapp"，请先在项目中安装，项目路径：/Users/maizhenying/.openclaw/workspace/mall-superapp/apps/mobile
- ELIFECYCLE  Command failed with exit code 1.
