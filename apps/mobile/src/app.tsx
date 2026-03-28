@@ -1,6 +1,5 @@
-import { PropsWithChildren } from 'react';
 import './app.css';
 
-export default function App({ children }: PropsWithChildren) {
-  return children;
+export default function App(props) {
+  return props.children;
 }
