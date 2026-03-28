@@ -20,7 +20,9 @@ jobs:
       - name: Build mobile (best effort)
         id: mobile_build
         continue-on-error: true
-        run: pnpm --filter @mall/mobile build
+        run: |
+          rm -rf apps/mobile/dist
+          pnpm --filter @mall/mobile build
       - run: tar -czf artifacts-web-dist-${GITHUB_REF_NAME}.tar.gz -C apps/web dist
       - name: Package mobile artifact or fallback note
         run: |
