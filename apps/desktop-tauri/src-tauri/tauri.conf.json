@@ -1,0 +1,14 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Mall SuperApp",
+  "version": "0.1.0",
+  "identifier": "com.mall.superapp",
+  "build": {
+    "beforeBuildCommand": "pnpm --filter @mall/web build",
+    "frontendDist": "../../web/dist"
+  },
+  "app": {
+    "windows": [{ "title": "Mall SuperApp", "width": 1200, "height": 800 }]
+  },
+  "bundle": { "active": true, "targets": "all", "icon": [] }
+}

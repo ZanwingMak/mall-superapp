@@ -1,0 +1,28 @@
+{
+  "name": "@mall/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "taro build --type weapp --watch",
+    "build": "taro build --type weapp",
+    "build:h5": "taro build --type h5",
+    "lint": "echo mobile lint",
+    "test": "echo mobile test",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@mall/api-client": "workspace:*",
+    "@mall/store": "workspace:*",
+    "@tarojs/components": "^4.1.7",
+    "@tarojs/runtime": "^4.1.7",
+    "@tarojs/taro": "^4.1.7",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tarojs/cli": "^4.1.7",
+    "@tarojs/plugin-framework-react": "^4.1.7",
+    "@tarojs/plugin-platform-weapp": "^4.1.7",
+    "@types/react": "^18.3.24",
+    "typescript": "^5.9.2"
+  }
+}

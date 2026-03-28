@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@mall/ui": ["packages/ui/src"],
+      "@mall/store": ["packages/store/src"],
+      "@mall/api-client": ["packages/api-client/src"],
+      "@mall/mock": ["packages/mock/src"]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@mall/desktop-tauri",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Install Rust toolchain then run: pnpm tauri dev'",
+    "build": "echo 'Install Rust toolchain then run: pnpm tauri build'",
+    "lint": "echo desktop lint",
+    "test": "echo desktop test",
+    "typecheck": "echo desktop typecheck"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.4"
+  }
+}

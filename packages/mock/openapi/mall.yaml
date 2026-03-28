@@ -1,0 +1,27 @@
+openapi: 3.0.3
+info:
+  title: Mall SuperApp API
+  version: 0.1.0
+paths:
+  /api/products:
+    get:
+      summary: Get product list
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+components:
+  schemas:
+    Product:
+      type: object
+      required: [id, title, price, image]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        price: { type: number }
+        image: { type: string }

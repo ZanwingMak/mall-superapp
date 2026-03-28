@@ -1,0 +1,15 @@
+{
+  "name": "@mall/api-client",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "echo api build",
+    "test": "echo api test",
+    "lint": "echo api lint",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.2"
+  }
+}

@@ -1,0 +1,17 @@
+
+> @mall/web@0.1.0 build /Users/maizhenying/.openclaw/workspace/mall-superapp/apps/web
+> vite build
+
+▲ [WARNING] Duplicate key "qmd" in object literal [duplicate-object-key]
+
+    ../../../../../package.json:4:4:
+      4 │     "qmd": "/tmp/qmd"
+        ╵     ~~~~~
+
+  The original key "qmd" is here:
+
+    ../../../../../package.json:3:4:
+      3 │     "qmd": "/tmp/qmd",
+        ╵     ~~~~~
+
+vite v7.3.1 building client environment for production...

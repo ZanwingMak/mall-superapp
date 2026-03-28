@@ -1,0 +1,5 @@
+[
+  {"id":"p1","title":"Air Flex 运动鞋","price":399,"image":"https://picsum.photos/seed/shoe/400/300"},
+  {"id":"p2","title":"轻薄羽绒服","price":699,"image":"https://picsum.photos/seed/jacket/400/300"},
+  {"id":"p3","title":"智能保温杯","price":129,"image":"https://picsum.photos/seed/cup/400/300"}
+]

@@ -1,0 +1,15 @@
+{
+  "name": "@mall/mock",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "echo mock build",
+    "test": "echo mock test",
+    "lint": "echo mock lint",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "msw": "^2.11.3"
+  }
+}
