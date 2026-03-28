@@ -2,4 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-body { @apply bg-slate-50 text-slate-900; }
+:root {
+  --color-brand: #ff6a3d;
+  --color-brand-soft: #fff3ed;
+  --shadow-sm: 0 6px 18px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+body {
+  @apply bg-slate-50 text-slate-900;
+  font-family: 'Inter', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  scrollbar-width: thin;
+}
