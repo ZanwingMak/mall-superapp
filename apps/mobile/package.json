@@ -14,8 +14,8 @@
     "@mall/api-client": "workspace:*",
     "@mall/store": "workspace:*",
     "@tarojs/components": "^4.1.7",
-    "@tarojs/runtime": "^4.1.7",
     "@tarojs/react": "^4.1.7",
+    "@tarojs/runtime": "^4.1.7",
     "@tarojs/taro": "^4.1.7",
     "react": "^18.3.1"
   },
@@ -28,6 +28,7 @@
     "@tarojs/plugin-platform-weapp": "^4.1.7",
     "@tarojs/webpack5-runner": "^4.1.7",
     "@types/react": "^18.3.24",
+    "babel-preset-taro": "^4.1.11",
     "typescript": "^5.9.2"
   }
 }

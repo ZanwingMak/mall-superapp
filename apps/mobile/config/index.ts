@@ -9,10 +9,7 @@ export default defineConfig({
   framework: 'react',
   compiler: 'webpack5',
   mini: {
-    postcss: { pxtransform: { enable: true, config: {} } },
-    webpackChain(chain) {
-      chain.resolve.alias.set('@tarojs/shared', false as unknown as string);
-    }
+    postcss: { pxtransform: { enable: true, config: {} } }
   },
   h5: { publicPath: '/', staticDirectory: 'static' }
 });

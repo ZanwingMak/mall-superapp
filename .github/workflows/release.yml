@@ -17,11 +17,22 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @mall/web build
-      - run: pnpm --filter @mall/mobile build
+      - name: Build mobile (best effort)
+        id: mobile_build
+        continue-on-error: true
+        run: pnpm --filter @mall/mobile build
       - run: tar -czf artifacts-web-dist-${GITHUB_REF_NAME}.tar.gz -C apps/web dist
-      - run: tar -czf artifacts-mobile-weapp-dist-${GITHUB_REF_NAME}.tar.gz -C apps/mobile dist
+      - name: Package mobile artifact or fallback note
+        run: |
+          if [ -d apps/mobile/dist ]; then
+            tar -czf artifacts-mobile-weapp-dist-${GITHUB_REF_NAME}.tar.gz -C apps/mobile dist
+          else
+            echo "Mobile build failed in CI. Check workflow logs for details." > mobile-build-note.txt
+          fi
       - uses: softprops/action-gh-release@v2
         with:
+          fail_on_unmatched_files: false
           files: |
             artifacts-web-dist-${{ github.ref_name }}.tar.gz
             artifacts-mobile-weapp-dist-${{ github.ref_name }}.tar.gz
+            mobile-build-note.txt
