@@ -1,17 +1,15 @@
-# 接口文档（OpenAPI + Mock）
+# API 文档（v0.2.0）
 
-契约文件：`packages/mock/openapi/mall.yaml`
+OpenAPI: `packages/mock/openapi/mall.yaml`
 
-## GET /api/products
-- 描述：获取商品列表
-- 返回：`Product[]`
+## 已完成接口
+- `GET /api/products`
+- `GET /api/coupons`
+- `GET /api/addresses`
+- `GET /api/orders`
+- `POST /api/checkout`
 
-```json
-[
-  { "id": "p1", "title": "Air Flex 运动鞋", "price": 399, "image": "https://..." }
-]
-```
-
-## Mock 方案
-- 数据源：`packages/mock/mock/products.json`
-- 拦截层：`packages/mock/src/index.ts`（MSW handlers）
+## 契约演进策略
+- 当前使用 MSW + JSON mock 驱动前端开发。
+- 字段命名与响应结构优先保持稳定，便于迁移真实后端。
+- 后续接入真实后端时，优先替换 request baseURL，不改动页面层调用签名。

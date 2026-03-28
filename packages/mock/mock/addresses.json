@@ -1,0 +1,4 @@
+[
+  {"id":"a1","name":"张三","phone":"13800000001","city":"上海","detail":"浦东新区张江路 88 号","isDefault":true},
+  {"id":"a2","name":"李四","phone":"13900000002","city":"杭州","detail":"余杭区文一西路 199 号","isDefault":false}
+]

@@ -15,3 +15,5 @@
 - 是否通过 lint / typecheck / test / build
 - 是否补充文档和测试
 - 是否兼容响应式布局
+- Taro 相关改动是否在 Node 20 验证
+- 桌面端改动是否经过 `apps/desktop-tauri/scripts/check-rust.sh` 与 CI 验证

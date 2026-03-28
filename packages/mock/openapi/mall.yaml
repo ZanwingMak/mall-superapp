@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Mall SuperApp API
-  version: 0.1.0
+  version: 0.2.0
 paths:
   /api/products:
     get:
@@ -15,13 +15,120 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Product'
+  /api/coupons:
+    get:
+      summary: Get available coupons
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Coupon'
+  /api/addresses:
+    get:
+      summary: Get user addresses
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Address'
+  /api/orders:
+    get:
+      summary: Get order list
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+  /api/checkout:
+    post:
+      summary: Create order from cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutPayload'
+      responses:
+        '200':
+          description: order created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [orderId, status]
+                properties:
+                  orderId: { type: string }
+                  status:
+                    type: string
+                    enum: [success]
 components:
   schemas:
     Product:
       type: object
-      required: [id, title, price, image]
+      required: [id, title, price, image, category, tags, stock]
       properties:
         id: { type: string }
         title: { type: string }
         price: { type: number }
         image: { type: string }
+        category:
+          type: string
+          enum: [fashion, digital, home, food]
+        tags:
+          type: array
+          items: { type: string }
+        stock: { type: integer }
+    Coupon:
+      type: object
+      required: [id, title, discount, minSpend, expireAt]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        discount: { type: number }
+        minSpend: { type: number }
+        expireAt: { type: string }
+    Address:
+      type: object
+      required: [id, name, phone, city, detail, isDefault]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        phone: { type: string }
+        city: { type: string }
+        detail: { type: string }
+        isDefault: { type: boolean }
+    Order:
+      type: object
+      required: [id, amount, status, createdAt, itemCount]
+      properties:
+        id: { type: string }
+        amount: { type: number }
+        status:
+          type: string
+          enum: [paid, shipping, done]
+        createdAt: { type: string }
+        itemCount: { type: integer }
+    CheckoutPayload:
+      type: object
+      required: [itemIds, addressId, paymentMethod]
+      properties:
+        itemIds:
+          type: array
+          items: { type: string }
+        couponId: { type: string }
+        addressId: { type: string }
+        paymentMethod:
+          type: string
+          enum: [alipay, wechat, card]

@@ -1,5 +1,47 @@
 [
-  {"id":"p1","title":"Air Flex 运动鞋","price":399,"image":"https://picsum.photos/seed/shoe/400/300"},
-  {"id":"p2","title":"轻薄羽绒服","price":699,"image":"https://picsum.photos/seed/jacket/400/300"},
-  {"id":"p3","title":"智能保温杯","price":129,"image":"https://picsum.photos/seed/cup/400/300"}
+  {
+    "id": "p1",
+    "title": "Air Flex 运动鞋",
+    "price": 399,
+    "image": "https://picsum.photos/seed/shoe/400/300",
+    "category": "fashion",
+    "tags": ["爆款", "轻便"],
+    "stock": 36
+  },
+  {
+    "id": "p2",
+    "title": "轻薄羽绒服",
+    "price": 699,
+    "image": "https://picsum.photos/seed/jacket/400/300",
+    "category": "fashion",
+    "tags": ["新品", "保暖"],
+    "stock": 20
+  },
+  {
+    "id": "p3",
+    "title": "智能保温杯",
+    "price": 129,
+    "image": "https://picsum.photos/seed/cup/400/300",
+    "category": "home",
+    "tags": ["智能", "高颜值"],
+    "stock": 88
+  },
+  {
+    "id": "p4",
+    "title": "蓝牙降噪耳机",
+    "price": 899,
+    "image": "https://picsum.photos/seed/headphone/400/300",
+    "category": "digital",
+    "tags": ["旗舰", "降噪"],
+    "stock": 15
+  },
+  {
+    "id": "p5",
+    "title": "精品挂耳咖啡 30包",
+    "price": 89,
+    "image": "https://picsum.photos/seed/coffee/400/300",
+    "category": "food",
+    "tags": ["提神", "口粮"],
+    "stock": 120
+  }
 ]
