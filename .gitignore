@@ -1,0 +1,9 @@
+node_modules
+.pnpm-store
+.DS_Store
+.env*
+/dist
+coverage
+playwright-report
+test-results
+apps/desktop-tauri/src-tauri/target
