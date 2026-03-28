@@ -1,0 +1,27 @@
+name: Release Assets
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @mall/web build
+      - run: pnpm --filter @mall/mobile build
+      - run: tar -czf artifacts-web-dist-${GITHUB_REF_NAME}.tar.gz -C apps/web dist
+      - run: tar -czf artifacts-mobile-weapp-dist-${GITHUB_REF_NAME}.tar.gz -C apps/mobile dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts-web-dist-${{ github.ref_name }}.tar.gz
+            artifacts-mobile-weapp-dist-${{ github.ref_name }}.tar.gz

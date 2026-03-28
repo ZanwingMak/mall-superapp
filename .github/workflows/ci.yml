@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+
+jobs:
+  web-and-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @mall/web build
+      - run: pnpm --filter @mall/web test
+      - run: pnpm --filter @mall/store test
+      - run: pnpm --filter @mall/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @mall/web e2e
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: apps/web/dist
+
+  mobile-build-node20:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @mall/mobile build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mobile-weapp-dist
+          path: apps/mobile/dist

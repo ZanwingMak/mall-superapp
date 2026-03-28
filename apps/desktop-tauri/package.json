@@ -1,10 +1,11 @@
 {
   "name": "@mall/desktop-tauri",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
-    "dev": "echo 'Install Rust toolchain then run: pnpm tauri dev'",
-    "build": "echo 'Install Rust toolchain then run: pnpm tauri build'",
+    "doctor": "bash ./scripts/check-rust.sh",
+    "dev": "pnpm run doctor && pnpm tauri dev",
+    "build": "pnpm run doctor && pnpm tauri build",
     "lint": "echo desktop lint",
     "test": "echo desktop test",
     "typecheck": "echo desktop typecheck"
