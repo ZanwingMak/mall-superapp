@@ -1,4 +1,72 @@
 [
-  {"id":"c1","title":"满300减30","discount":30,"minSpend":300,"expireAt":"2026-04-30"},
-  {"id":"c2","title":"满800减120","discount":120,"minSpend":800,"expireAt":"2026-05-10"}
+  {
+    "id": "c1",
+    "title": "满99减10",
+    "discount": 10,
+    "minSpend": 99,
+    "expireAt": "2026-05-28"
+  },
+  {
+    "id": "c2",
+    "title": "满199减25",
+    "discount": 25,
+    "minSpend": 199,
+    "expireAt": "2026-06-28"
+  },
+  {
+    "id": "c3",
+    "title": "满299减40",
+    "discount": 40,
+    "minSpend": 299,
+    "expireAt": "2026-07-28"
+  },
+  {
+    "id": "c4",
+    "title": "数码专享券",
+    "discount": 60,
+    "minSpend": 499,
+    "expireAt": "2026-08-28"
+  },
+  {
+    "id": "c5",
+    "title": "服饰品类券",
+    "discount": 30,
+    "minSpend": 249,
+    "expireAt": "2026-09-28"
+  },
+  {
+    "id": "c6",
+    "title": "食品加购券",
+    "discount": 15,
+    "minSpend": 79,
+    "expireAt": "2026-04-28"
+  },
+  {
+    "id": "c7",
+    "title": "会员日券",
+    "discount": 88,
+    "minSpend": 599,
+    "expireAt": "2026-05-28"
+  },
+  {
+    "id": "c8",
+    "title": "新人首单券",
+    "discount": 20,
+    "minSpend": 89,
+    "expireAt": "2026-06-28"
+  },
+  {
+    "id": "c9",
+    "title": "家居品类券",
+    "discount": 35,
+    "minSpend": 269,
+    "expireAt": "2026-07-28"
+  },
+  {
+    "id": "c10",
+    "title": "极速达补贴券",
+    "discount": 12,
+    "minSpend": 69,
+    "expireAt": "2026-08-28"
+  }
 ]

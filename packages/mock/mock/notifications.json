@@ -1,26 +1,722 @@
 [
   {
     "id": "n1",
-    "title": "订单已发货",
-    "content": "您的订单 o20260328001 已由上海仓发出，预计明日送达。",
-    "type": "logistics",
-    "createdAt": "2026-03-29 01:30",
+    "title": "promo通知 #1",
+    "content": "这是第1条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-02 10:05",
     "read": false
   },
   {
     "id": "n2",
-    "title": "专属券到账",
-    "content": "PLUS会员每月券已发放：满199减30（7天有效）。",
-    "type": "promo",
-    "createdAt": "2026-03-28 18:10",
-    "read": true
+    "title": "price_drop通知 #2",
+    "content": "这是第2条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-03 11:10",
+    "read": false
   },
   {
     "id": "n3",
-    "title": "降价提醒",
-    "content": "您关注的「Air Flex 运动鞋」已降价 40 元。",
-    "type": "price_drop",
-    "createdAt": "2026-03-28 10:42",
+    "title": "service通知 #3",
+    "content": "这是第3条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-04 12:15",
+    "read": true
+  },
+  {
+    "id": "n4",
+    "title": "logistics通知 #4",
+    "content": "这是第4条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-05 13:20",
     "read": false
+  },
+  {
+    "id": "n5",
+    "title": "promo通知 #5",
+    "content": "这是第5条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-06 14:25",
+    "read": false
+  },
+  {
+    "id": "n6",
+    "title": "price_drop通知 #6",
+    "content": "这是第6条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-07 15:30",
+    "read": true
+  },
+  {
+    "id": "n7",
+    "title": "service通知 #7",
+    "content": "这是第7条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-08 16:35",
+    "read": false
+  },
+  {
+    "id": "n8",
+    "title": "logistics通知 #8",
+    "content": "这是第8条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-09 17:40",
+    "read": false
+  },
+  {
+    "id": "n9",
+    "title": "promo通知 #9",
+    "content": "这是第9条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-10 18:45",
+    "read": true
+  },
+  {
+    "id": "n10",
+    "title": "price_drop通知 #10",
+    "content": "这是第10条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-11 09:50",
+    "read": false
+  },
+  {
+    "id": "n11",
+    "title": "service通知 #11",
+    "content": "这是第11条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-12 10:55",
+    "read": false
+  },
+  {
+    "id": "n12",
+    "title": "logistics通知 #12",
+    "content": "这是第12条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-13 11:00",
+    "read": true
+  },
+  {
+    "id": "n13",
+    "title": "promo通知 #13",
+    "content": "这是第13条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-14 12:05",
+    "read": false
+  },
+  {
+    "id": "n14",
+    "title": "price_drop通知 #14",
+    "content": "这是第14条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-15 13:10",
+    "read": false
+  },
+  {
+    "id": "n15",
+    "title": "service通知 #15",
+    "content": "这是第15条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-16 14:15",
+    "read": true
+  },
+  {
+    "id": "n16",
+    "title": "logistics通知 #16",
+    "content": "这是第16条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-17 15:20",
+    "read": false
+  },
+  {
+    "id": "n17",
+    "title": "promo通知 #17",
+    "content": "这是第17条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-18 16:25",
+    "read": false
+  },
+  {
+    "id": "n18",
+    "title": "price_drop通知 #18",
+    "content": "这是第18条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-19 17:30",
+    "read": true
+  },
+  {
+    "id": "n19",
+    "title": "service通知 #19",
+    "content": "这是第19条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-20 18:35",
+    "read": false
+  },
+  {
+    "id": "n20",
+    "title": "logistics通知 #20",
+    "content": "这是第20条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-21 09:40",
+    "read": false
+  },
+  {
+    "id": "n21",
+    "title": "promo通知 #21",
+    "content": "这是第21条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-22 10:45",
+    "read": true
+  },
+  {
+    "id": "n22",
+    "title": "price_drop通知 #22",
+    "content": "这是第22条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-23 11:50",
+    "read": false
+  },
+  {
+    "id": "n23",
+    "title": "service通知 #23",
+    "content": "这是第23条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-24 12:55",
+    "read": false
+  },
+  {
+    "id": "n24",
+    "title": "logistics通知 #24",
+    "content": "这是第24条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-25 13:00",
+    "read": true
+  },
+  {
+    "id": "n25",
+    "title": "promo通知 #25",
+    "content": "这是第25条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-26 14:05",
+    "read": false
+  },
+  {
+    "id": "n26",
+    "title": "price_drop通知 #26",
+    "content": "这是第26条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-27 15:10",
+    "read": false
+  },
+  {
+    "id": "n27",
+    "title": "service通知 #27",
+    "content": "这是第27条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-28 16:15",
+    "read": true
+  },
+  {
+    "id": "n28",
+    "title": "logistics通知 #28",
+    "content": "这是第28条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-01 17:20",
+    "read": false
+  },
+  {
+    "id": "n29",
+    "title": "promo通知 #29",
+    "content": "这是第29条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-02 18:25",
+    "read": false
+  },
+  {
+    "id": "n30",
+    "title": "price_drop通知 #30",
+    "content": "这是第30条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-03 09:30",
+    "read": true
+  },
+  {
+    "id": "n31",
+    "title": "service通知 #31",
+    "content": "这是第31条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-04 10:35",
+    "read": false
+  },
+  {
+    "id": "n32",
+    "title": "logistics通知 #32",
+    "content": "这是第32条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-05 11:40",
+    "read": false
+  },
+  {
+    "id": "n33",
+    "title": "promo通知 #33",
+    "content": "这是第33条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-06 12:45",
+    "read": true
+  },
+  {
+    "id": "n34",
+    "title": "price_drop通知 #34",
+    "content": "这是第34条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-07 13:50",
+    "read": false
+  },
+  {
+    "id": "n35",
+    "title": "service通知 #35",
+    "content": "这是第35条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-08 14:55",
+    "read": false
+  },
+  {
+    "id": "n36",
+    "title": "logistics通知 #36",
+    "content": "这是第36条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-09 15:00",
+    "read": true
+  },
+  {
+    "id": "n37",
+    "title": "promo通知 #37",
+    "content": "这是第37条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-10 16:05",
+    "read": false
+  },
+  {
+    "id": "n38",
+    "title": "price_drop通知 #38",
+    "content": "这是第38条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-11 17:10",
+    "read": false
+  },
+  {
+    "id": "n39",
+    "title": "service通知 #39",
+    "content": "这是第39条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-12 18:15",
+    "read": true
+  },
+  {
+    "id": "n40",
+    "title": "logistics通知 #40",
+    "content": "这是第40条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-13 09:20",
+    "read": false
+  },
+  {
+    "id": "n41",
+    "title": "promo通知 #41",
+    "content": "这是第41条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-14 10:25",
+    "read": false
+  },
+  {
+    "id": "n42",
+    "title": "price_drop通知 #42",
+    "content": "这是第42条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-15 11:30",
+    "read": true
+  },
+  {
+    "id": "n43",
+    "title": "service通知 #43",
+    "content": "这是第43条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-16 12:35",
+    "read": false
+  },
+  {
+    "id": "n44",
+    "title": "logistics通知 #44",
+    "content": "这是第44条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-17 13:40",
+    "read": false
+  },
+  {
+    "id": "n45",
+    "title": "promo通知 #45",
+    "content": "这是第45条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-18 14:45",
+    "read": true
+  },
+  {
+    "id": "n46",
+    "title": "price_drop通知 #46",
+    "content": "这是第46条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-19 15:50",
+    "read": false
+  },
+  {
+    "id": "n47",
+    "title": "service通知 #47",
+    "content": "这是第47条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-20 16:55",
+    "read": false
+  },
+  {
+    "id": "n48",
+    "title": "logistics通知 #48",
+    "content": "这是第48条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-21 17:00",
+    "read": true
+  },
+  {
+    "id": "n49",
+    "title": "promo通知 #49",
+    "content": "这是第49条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-22 18:05",
+    "read": false
+  },
+  {
+    "id": "n50",
+    "title": "price_drop通知 #50",
+    "content": "这是第50条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-23 09:10",
+    "read": false
+  },
+  {
+    "id": "n51",
+    "title": "service通知 #51",
+    "content": "这是第51条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-24 10:15",
+    "read": true
+  },
+  {
+    "id": "n52",
+    "title": "logistics通知 #52",
+    "content": "这是第52条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-25 11:20",
+    "read": false
+  },
+  {
+    "id": "n53",
+    "title": "promo通知 #53",
+    "content": "这是第53条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-26 12:25",
+    "read": false
+  },
+  {
+    "id": "n54",
+    "title": "price_drop通知 #54",
+    "content": "这是第54条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-27 13:30",
+    "read": true
+  },
+  {
+    "id": "n55",
+    "title": "service通知 #55",
+    "content": "这是第55条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-28 14:35",
+    "read": false
+  },
+  {
+    "id": "n56",
+    "title": "logistics通知 #56",
+    "content": "这是第56条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-01 15:40",
+    "read": false
+  },
+  {
+    "id": "n57",
+    "title": "promo通知 #57",
+    "content": "这是第57条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-02 16:45",
+    "read": true
+  },
+  {
+    "id": "n58",
+    "title": "price_drop通知 #58",
+    "content": "这是第58条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-03 17:50",
+    "read": false
+  },
+  {
+    "id": "n59",
+    "title": "service通知 #59",
+    "content": "这是第59条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-04 18:55",
+    "read": false
+  },
+  {
+    "id": "n60",
+    "title": "logistics通知 #60",
+    "content": "这是第60条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-05 09:00",
+    "read": true
+  },
+  {
+    "id": "n61",
+    "title": "promo通知 #61",
+    "content": "这是第61条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-06 10:05",
+    "read": false
+  },
+  {
+    "id": "n62",
+    "title": "price_drop通知 #62",
+    "content": "这是第62条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-07 11:10",
+    "read": false
+  },
+  {
+    "id": "n63",
+    "title": "service通知 #63",
+    "content": "这是第63条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-08 12:15",
+    "read": true
+  },
+  {
+    "id": "n64",
+    "title": "logistics通知 #64",
+    "content": "这是第64条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-09 13:20",
+    "read": false
+  },
+  {
+    "id": "n65",
+    "title": "promo通知 #65",
+    "content": "这是第65条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-10 14:25",
+    "read": false
+  },
+  {
+    "id": "n66",
+    "title": "price_drop通知 #66",
+    "content": "这是第66条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-11 15:30",
+    "read": true
+  },
+  {
+    "id": "n67",
+    "title": "service通知 #67",
+    "content": "这是第67条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-12 16:35",
+    "read": false
+  },
+  {
+    "id": "n68",
+    "title": "logistics通知 #68",
+    "content": "这是第68条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-13 17:40",
+    "read": false
+  },
+  {
+    "id": "n69",
+    "title": "promo通知 #69",
+    "content": "这是第69条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-14 18:45",
+    "read": true
+  },
+  {
+    "id": "n70",
+    "title": "price_drop通知 #70",
+    "content": "这是第70条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-15 09:50",
+    "read": false
+  },
+  {
+    "id": "n71",
+    "title": "service通知 #71",
+    "content": "这是第71条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-16 10:55",
+    "read": false
+  },
+  {
+    "id": "n72",
+    "title": "logistics通知 #72",
+    "content": "这是第72条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-17 11:00",
+    "read": true
+  },
+  {
+    "id": "n73",
+    "title": "promo通知 #73",
+    "content": "这是第73条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-18 12:05",
+    "read": false
+  },
+  {
+    "id": "n74",
+    "title": "price_drop通知 #74",
+    "content": "这是第74条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-19 13:10",
+    "read": false
+  },
+  {
+    "id": "n75",
+    "title": "service通知 #75",
+    "content": "这是第75条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-20 14:15",
+    "read": true
+  },
+  {
+    "id": "n76",
+    "title": "logistics通知 #76",
+    "content": "这是第76条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-21 15:20",
+    "read": false
+  },
+  {
+    "id": "n77",
+    "title": "promo通知 #77",
+    "content": "这是第77条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-22 16:25",
+    "read": false
+  },
+  {
+    "id": "n78",
+    "title": "price_drop通知 #78",
+    "content": "这是第78条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-23 17:30",
+    "read": true
+  },
+  {
+    "id": "n79",
+    "title": "service通知 #79",
+    "content": "这是第79条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-24 18:35",
+    "read": false
+  },
+  {
+    "id": "n80",
+    "title": "logistics通知 #80",
+    "content": "这是第80条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-25 09:40",
+    "read": false
+  },
+  {
+    "id": "n81",
+    "title": "promo通知 #81",
+    "content": "这是第81条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-26 10:45",
+    "read": true
+  },
+  {
+    "id": "n82",
+    "title": "price_drop通知 #82",
+    "content": "这是第82条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-27 11:50",
+    "read": false
+  },
+  {
+    "id": "n83",
+    "title": "service通知 #83",
+    "content": "这是第83条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-28 12:55",
+    "read": false
+  },
+  {
+    "id": "n84",
+    "title": "logistics通知 #84",
+    "content": "这是第84条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-01 13:00",
+    "read": true
+  },
+  {
+    "id": "n85",
+    "title": "promo通知 #85",
+    "content": "这是第85条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-02 14:05",
+    "read": false
+  },
+  {
+    "id": "n86",
+    "title": "price_drop通知 #86",
+    "content": "这是第86条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-03 15:10",
+    "read": false
+  },
+  {
+    "id": "n87",
+    "title": "service通知 #87",
+    "content": "这是第87条service消息，请及时查看。",
+    "type": "service",
+    "createdAt": "2026-03-04 16:15",
+    "read": true
+  },
+  {
+    "id": "n88",
+    "title": "logistics通知 #88",
+    "content": "这是第88条logistics消息，请及时查看。",
+    "type": "logistics",
+    "createdAt": "2026-03-05 17:20",
+    "read": false
+  },
+  {
+    "id": "n89",
+    "title": "promo通知 #89",
+    "content": "这是第89条promo消息，请及时查看。",
+    "type": "promo",
+    "createdAt": "2026-03-06 18:25",
+    "read": false
+  },
+  {
+    "id": "n90",
+    "title": "price_drop通知 #90",
+    "content": "这是第90条price_drop消息，请及时查看。",
+    "type": "price_drop",
+    "createdAt": "2026-03-07 09:30",
+    "read": true
   }
 ]

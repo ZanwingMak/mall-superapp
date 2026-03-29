@@ -1,31 +1,38 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 export type Category = 'fashion' | 'digital' | 'home' | 'food';
-export type OrderStatus = 'pending' | 'paid' | 'shipping' | 'done';
+export type OrderStatus = 'pending' | 'paid' | 'shipping' | 'done' | 'cancelled' | 'out_of_stock' | 'refund_processing' | 'refund_done';
 
 export interface Product {
   id: string;
   title: string;
   subtitle?: string;
+  brand?: string;
   price: number;
   originPrice?: number;
   image: string;
   images?: string[];
   category: Category;
   tags: string[];
+  promoTags?: string[];
   stock: number;
   soldCount?: number;
   rating?: number;
+  reviewCount?: number;
   description?: string;
   specs?: { name: string; values: string[] }[];
+  skus?: Array<{ id: string; attrs: Record<string, string>; stock: number; price: number }>;
 }
 
 export interface Review {
   id: string;
+  productId?: string;
   user: string;
   rating: number;
   content: string;
   createdAt: string;
+  images?: string[];
+  appendComment?: string;
 }
 
 export interface Coupon {
