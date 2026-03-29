@@ -100,6 +100,7 @@ export default function App() {
 
   const filteredProducts = useMemo(() => filterAndSortProducts(products, keyword, category, sortBy), [products, keyword, category, sortBy]);
   const paginatedProducts = useMemo(() => paginateItems(filteredProducts, productPage, 16), [filteredProducts, productPage]);
+  const hasActiveProductFilters = keyword.trim() || category !== 'all' || sortBy !== 'smart';
 
   useEffect(() => {
     setProductPage(1);
@@ -134,6 +135,14 @@ export default function App() {
       setProductPage((p) => p + 1);
       setLoadingMore(false);
     }, 320);
+  };
+
+  const resetProductFilters = () => {
+    setKeyword('');
+    setCategory('all');
+    setSortBy('smart');
+    setProductPage(1);
+    setToast('已恢复全量商品');
   };
 
   const unreadCount = notifications.filter((x) => !x.read).length;
@@ -284,6 +293,15 @@ export default function App() {
                 {keyword ? <span className="rounded-full bg-orange-50 px-2 py-1 text-orange-700">关键词：{keyword}</span> : null}
                 <span className="ml-auto text-slate-500">共 {paginatedProducts.total} 件，当前已展示 {paginatedProducts.showing} 件</span>
               </div>
+              {hasActiveProductFilters ? (
+                <div className="mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-700">
+                  <span className="font-semibold">当前筛选已生效</span>
+                  <span>· 结果 {filteredProducts.length} / 全部 {products.length}</span>
+                  <Button size="sm" variant="ghost" className="ml-auto border border-orange-200 bg-white text-orange-700 hover:bg-orange-100" onClick={resetProductFilters}>
+                    一键清空筛选
+                  </Button>
+                </div>
+              ) : null}
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {paginatedProducts.visible.map((p) => (
                   <div key={p.id} className="rounded-3xl border border-transparent p-1 transition hover:border-slate-200">

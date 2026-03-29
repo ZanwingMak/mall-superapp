@@ -57,11 +57,15 @@ export function ProductCard({
           </span>
         ) : null}
       </div>
-      <div className="mt-3 flex min-h-10 flex-wrap gap-1">
+      <div className="mt-3 flex min-h-10 flex-wrap content-start gap-2">
         {(tags || []).slice(0, 2).map((tag) => (
-          <Tag key={tag} tone="hot">
-            {tag}
-          </Tag>
+          <span
+            key={tag}
+            title={tag}
+            className="inline-flex h-6 max-w-[46%] items-center rounded-full bg-orange-100 px-2.5 text-xs text-orange-700"
+          >
+            <span className="block w-full truncate leading-none">{tag}</span>
+          </span>
         ))}
       </div>
       <h3 className="mt-2 line-clamp-2 text-sm font-medium text-slate-800">{title}</h3>
