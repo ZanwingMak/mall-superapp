@@ -14,7 +14,15 @@ import {
 import { useCartStore } from '@mall/store';
 import { Button, Card, EmptyState, ProductCard, SectionTitle, Skeleton, Tag } from '@mall/ui';
 import { useEffect, useMemo, useState } from 'react';
-import { buildReviewChunks, filterAndSortProducts, filterNotificationsList, filterOrderList, paginateItems } from './list-utils';
+import {
+  buildReviewChunks,
+  filterAndSortProducts,
+  filterNotificationsList,
+  filterOrderList,
+  getOrderStatusMeta,
+  getReviewStats,
+  paginateItems
+} from './list-utils';
 
 const categoryOptions = [
   { label: '全部', value: 'all' },
@@ -46,17 +54,6 @@ const categories = ['潮流服饰', '数码好物', '居家精选', '食品生�
 const quickFeeds = ['会员日每周三满199减30', '开学季数码会场最高12期免息', '晚8点秒杀专场已开启，库存告急'];
 const serviceEntries = ['售后进度', '退款管理', '发票助手', '在线客服', '会员权益', '隐私设置'];
 
-const orderStatusMeta: Record<string, { tone: string; progress: number; label: string }> = {
-  pending: { tone: 'text-amber-600', progress: 25, label: '待付款' },
-  paid: { tone: 'text-sky-600', progress: 45, label: '已支付' },
-  shipping: { tone: 'text-indigo-600', progress: 75, label: '待发货' },
-  done: { tone: 'text-emerald-600', progress: 100, label: '已完成' },
-  cancelled: { tone: 'text-slate-500', progress: 0, label: '已取消' },
-  out_of_stock: { tone: 'text-rose-600', progress: 30, label: '缺货异常' },
-  refund_processing: { tone: 'text-orange-600', progress: 55, label: '退款中' },
-  refund_done: { tone: 'text-cyan-600', progress: 100, label: '退款完成' }
-};
-
 function usePath() {
   const [path, setPath] = useState(window.location.pathname || '/');
   useEffect(() => {
@@ -86,6 +83,8 @@ export default function App() {
   const [bannerIndex, setBannerIndex] = useState(0);
   const [toast, setToast] = useState('');
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [productListLoading, setProductListLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     if (!home?.banners?.length) return;
@@ -104,7 +103,12 @@ export default function App() {
 
   useEffect(() => {
     setProductPage(1);
-  }, [keyword, category, sortBy]);
+    if (!productsLoading) {
+      setProductListLoading(true);
+      const timer = setTimeout(() => setProductListLoading(false), 260);
+      return () => clearTimeout(timer);
+    }
+  }, [keyword, category, sortBy, productsLoading]);
 
   const compareProducts = products.filter((p) => compareIds.includes(p.id));
 
@@ -122,6 +126,14 @@ export default function App() {
   const onAddCart = (p: (typeof products)[number]) => {
     useCartStore.getState().addItem({ id: p.id, name: p.title, image: p.image, price: p.price, originPrice: p.originPrice });
     setToast('已加入购物车');
+  };
+
+  const loadMoreProducts = () => {
+    setLoadingMore(true);
+    setTimeout(() => {
+      setProductPage((p) => p + 1);
+      setLoadingMore(false);
+    }, 320);
   };
 
   const unreadCount = notifications.filter((x) => !x.read).length;
@@ -260,13 +272,18 @@ export default function App() {
               {sortOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
           </div>
-          {productsLoading ? (
+          {productsLoading || productListLoading ? (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-64" />)}</div>
           ) : isError ? (
-            <EmptyState title="商品加载失败" desc="请稍后重试" />
+            <EmptyState title="商品加载失败" desc="请稍后重试" tone="error" />
           ) : (
             <>
-              <div className="mb-3 text-xs text-slate-500">共 {paginatedProducts.total} 件，当前已渲染 {paginatedProducts.visible.length} 件</div>
+              <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+                <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-600">分类：{categoryOptions.find((x) => x.value === category)?.label}</span>
+                <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-600">排序：{sortOptions.find((x) => x.value === sortBy)?.label}</span>
+                {keyword ? <span className="rounded-full bg-orange-50 px-2 py-1 text-orange-700">关键词：{keyword}</span> : null}
+                <span className="ml-auto text-slate-500">共 {paginatedProducts.total} 件，当前已展示 {paginatedProducts.showing} 件</span>
+              </div>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {paginatedProducts.visible.map((p) => (
                   <div key={p.id} className="rounded-3xl border border-transparent p-1 transition hover:border-slate-200">
@@ -293,7 +310,7 @@ export default function App() {
               </div>
               {paginatedProducts.hasMore ? (
                 <div className="mt-4 text-center">
-                  <Button variant="secondary" onClick={() => setProductPage((p) => p + 1)}>加载更多</Button>
+                  <Button variant="secondary" onClick={loadMoreProducts} disabled={loadingMore}>{loadingMore ? '加载中...' : `加载更多（剩余 ${paginatedProducts.total - paginatedProducts.showing}）`}</Button>
                 </div>
               ) : null}
             </>
@@ -301,6 +318,13 @@ export default function App() {
         </Card>
 
         {compareProducts.length ? <ComparePanel products={compareProducts} onToggleCompare={toggleCompare} /> : null}
+
+        <button
+          className="fixed bottom-24 right-4 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs shadow-[var(--shadow-sm)] md:bottom-8"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          回到顶部 ↑
+        </button>
       </main>
     </PageWrap>
   );
@@ -393,6 +417,7 @@ function ProductDetailPage({
   const images = product.images?.length ? product.images : [product.image];
   const activeImage = previewImage || images[0];
   const reviewData = buildReviewChunks(reviews, reviewTab, 12);
+  const reviewStats = getReviewStats(reviews);
   const filteredReviews = reviewData.chunk(reviewPage);
   const recommendProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
 
@@ -470,7 +495,13 @@ function ProductDetailPage({
         <p className="text-sm text-slate-600">{product.description}</p>
       </Card>
       <Card className="p-4">
-        <SectionTitle extra={<p className="text-sm text-amber-600">好评率 {reviews.length ? Math.round((reviews.filter((x) => x.rating >= 4).length / reviews.length) * 100) : 0}%</p>}>评价预览</SectionTitle>
+        <SectionTitle extra={<p className="text-sm text-amber-600">好评率 {reviewStats.total ? Math.round((reviewStats.positive / reviewStats.total) * 100) : 0}%</p>}>评价预览</SectionTitle>
+        <div className="mb-3 grid grid-cols-2 gap-2 text-xs md:grid-cols-4">
+          <div className="rounded-xl bg-emerald-50 p-2 text-emerald-700">好评 {reviewStats.positive}</div>
+          <div className="rounded-xl bg-amber-50 p-2 text-amber-700">中评 {reviewStats.neutral}</div>
+          <div className="rounded-xl bg-rose-50 p-2 text-rose-700">差评 {reviewStats.negative}</div>
+          <div className="rounded-xl bg-sky-50 p-2 text-sky-700">有图/追评占比 {reviewStats.mediaRatio}%</div>
+        </div>
         <div className="mb-3 flex gap-2">
           <Button size="sm" variant={reviewTab === 'all' ? 'primary' : 'secondary'} onClick={() => { setReviewTab('all'); setReviewPage(1); }}>全部({reviewData.filtered.length})</Button>
           <Button size="sm" variant={reviewTab === 'withPic' ? 'primary' : 'secondary'} onClick={() => { setReviewTab('withPic'); setReviewPage(1); }}>有图/追评</Button>
@@ -486,6 +517,7 @@ function ProductDetailPage({
             </div>
           ))}
           {!filteredReviews.length ? <EmptyState title="暂无匹配评价" desc="换个筛选试试" /> : null}
+          <p className="text-center text-xs text-slate-500">已显示 {reviewData.showing(reviewPage)} / {reviewData.filtered.length} 条</p>
           {reviewData.hasMore(reviewPage) ? <div className="text-center"><Button size="sm" variant="secondary" onClick={() => setReviewPage((p) => p + 1)}>加载更多评价</Button></div> : null}
           {reviewPage > 1 && !reviewData.hasMore(reviewPage) ? <div className="text-center"><Button size="sm" variant="ghost" onClick={() => setReviewPage(1)}>收起到首屏</Button></div> : null}
         </div>
@@ -720,12 +752,13 @@ function OrdersPage({ go }: { go: (x: string) => void }) {
       <Card className="p-4">
         <SectionTitle extra={<Button variant="ghost" onClick={() => go('/me')}>返回个人中心</Button>}>我的订单</SectionTitle>
         <input aria-label="搜索订单" className="mb-3 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm" placeholder="搜索订单号/状态" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
-        <div className="mb-4 flex flex-wrap gap-2">{orderTabs.map((t) => <button key={t.key} className={`rounded-xl px-3 py-1 text-sm ${tab === t.key ? 'bg-slate-900 text-white' : 'bg-slate-100'}`} onClick={() => setTab(t.key)}>{t.label}</button>)}</div>
-        {isError ? <EmptyState title="订单加载失败" desc="请刷新重试" /> : null}
+        <div className="mb-3 flex flex-wrap gap-2">{orderTabs.map((t) => <button key={t.key} className={`rounded-xl px-3 py-1 text-sm ${tab === t.key ? 'bg-slate-900 text-white' : 'bg-slate-100'}`} onClick={() => setTab(t.key)}>{t.label}</button>)}</div>
+        <p className="mb-3 text-xs text-slate-500">筛选结果：{list.length} / 全部 {orders.length} 条</p>
+        {isError ? <EmptyState title="订单加载失败" desc="请刷新重试" tone="error" /> : null}
         {!isError && !list.length ? <EmptyState title="暂无匹配订单" desc="请修改筛选条件" /> : null}
         <div className="space-y-3">{list.map((o) => {
-          const meta = orderStatusMeta[o.status] || { tone: 'text-slate-600', progress: 40, label: o.status };
-          return <div key={o.id} className="rounded-2xl border border-slate-100 p-3 text-sm"><div className="flex justify-between"><span>订单号 {o.id}</span><span className={meta.tone}>{meta.label}</span></div><div className="mt-1 flex justify-between text-slate-500"><span>{o.createdAt}</span><span>{o.itemCount} 件 · ¥{o.amount}</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${meta.progress}%` }} /></div><div className="mt-2 flex gap-2"><Button size="sm" variant="secondary" onClick={() => setServiceApplyId(o.id)}>申请售后</Button><Button size="sm" variant="ghost">查看详情</Button></div></div>;
+          const meta = getOrderStatusMeta(o.status);
+          return <div key={o.id} className="rounded-2xl border border-slate-100 p-3 text-sm"><div className="flex justify-between"><span>订单号 {o.id}</span><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${meta.chip}`}>{meta.label}</span></div><div className="mt-1 flex justify-between text-slate-500"><span>{o.createdAt}</span><span>{o.itemCount} 件 · ¥{o.amount}</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${meta.progress}%` }} /></div><div className="mt-2 flex gap-2"><Button size="sm" variant="secondary" onClick={() => setServiceApplyId(o.id)}>申请售后</Button><Button size="sm" variant="ghost">查看详情</Button></div></div>;
         })}</div>
       </Card>
       {serviceApplyId ? (
@@ -758,6 +791,13 @@ function NotificationsPage() {
   const [tab, setTab] = useState<'all' | 'unread'>('all');
   const [keyword, setKeyword] = useState('');
   const [type, setType] = useState<'all' | 'logistics' | 'promo' | 'price_drop' | 'service'>('all');
+  const typeOptions = [
+    { key: 'all', label: '全部类型' },
+    { key: 'logistics', label: '物流' },
+    { key: 'promo', label: '促销' },
+    { key: 'price_drop', label: '降价' },
+    { key: 'service', label: '服务' }
+  ] as const;
   const list = filterNotificationsList(notifications, tab, keyword, type);
 
   return (
@@ -765,23 +805,21 @@ function NotificationsPage() {
       <Card className="p-4">
         <SectionTitle>消息通知中心</SectionTitle>
         <input aria-label="搜索消息" className="mb-3 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm" placeholder="搜索标题或内容" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
-        <div className="mb-3 flex flex-wrap gap-2">
+        <div className="mb-2 flex flex-wrap gap-2">
           <Button size="sm" variant={tab === 'all' ? 'primary' : 'secondary'} onClick={() => setTab('all')}>全部</Button>
           <Button size="sm" variant={tab === 'unread' ? 'primary' : 'secondary'} onClick={() => setTab('unread')}>未读</Button>
-          <select aria-label="消息类型" value={type} onChange={(e) => setType(e.target.value as typeof type)} className="rounded-xl border border-slate-200 px-3 py-1 text-sm">
-            <option value="all">全部类型</option>
-            <option value="logistics">物流</option>
-            <option value="promo">促销</option>
-            <option value="price_drop">降价</option>
-            <option value="service">服务</option>
-          </select>
         </div>
-        {isError ? <EmptyState title="消息加载失败" desc="请稍后重试" /> : null}
+        <div className="mb-3 flex flex-wrap gap-2">
+          {typeOptions.map((x) => (
+            <button key={x.key} className={`rounded-full px-3 py-1 text-xs ${type === x.key ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`} onClick={() => setType(x.key as typeof type)}>{x.label}</button>
+          ))}
+        </div>
+        {isError ? <EmptyState title="消息加载失败" desc="请稍后重试" tone="error" /> : null}
         {!isError && !list.length ? <EmptyState title="暂无匹配消息" desc="可尝试切换筛选项" /> : null}
         {!isError && list.length ? (
           <div className="space-y-2">
             {list.map((n) => (
-              <div key={n.id} className={`rounded-2xl border p-3 text-sm ${n.read ? 'border-slate-100 bg-white' : 'border-orange-200 bg-orange-50'}`}>
+              <div key={n.id} className={`rounded-2xl border p-3 text-sm ${n.read ? 'border-slate-100 bg-white' : 'border-orange-300 bg-orange-50 shadow-[var(--shadow-sm)]'}`}>
                 <div className="flex items-center justify-between"><p className="font-medium">{n.title}</p><span className="text-xs text-slate-400">{n.createdAt}</span></div>
                 <p className="mt-1 text-slate-600">{n.content}</p>
               </div>

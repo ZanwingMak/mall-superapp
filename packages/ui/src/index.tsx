@@ -86,9 +86,18 @@ export function SectionTitle({ children, extra }: { children: React.ReactNode; e
   );
 }
 
-export function EmptyState({ title, desc }: { title: string; desc?: string }) {
+export function EmptyState({
+  title,
+  desc,
+  tone = 'default'
+}: {
+  title: string;
+  desc?: string;
+  tone?: 'default' | 'error';
+}) {
+  const toneCls = tone === 'error' ? 'border-rose-200 bg-rose-50' : 'border-slate-200 bg-slate-50';
   return (
-    <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
+    <div className={`rounded-3xl border border-dashed p-8 text-center ${toneCls}`}>
       <p className="text-sm font-semibold text-slate-700">{title}</p>
       {desc ? <p className="mt-1 text-xs text-slate-500">{desc}</p> : null}
     </div>

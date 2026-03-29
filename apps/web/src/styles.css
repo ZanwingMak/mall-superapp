@@ -17,3 +17,14 @@ body {
 * {
   scrollbar-width: thin;
 }
+
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .rounded-3xl {
+    border-radius: 1.25rem;
+  }
+}
