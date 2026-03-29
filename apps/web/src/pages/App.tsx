@@ -14,6 +14,7 @@ import {
 import { useCartStore } from '@mall/store';
 import { Button, Card, EmptyState, ProductCard, SectionTitle, Skeleton, Tag } from '@mall/ui';
 import { useEffect, useMemo, useState } from 'react';
+import { buildReviewChunks, filterAndSortProducts, filterNotificationsList, filterOrderList, paginateItems } from './list-utils';
 
 const categoryOptions = [
   { label: '全部', value: 'all' },
@@ -35,18 +36,25 @@ const orderTabs = [
   { key: 'all', label: '全部' },
   { key: 'pending', label: '待付款' },
   { key: 'shipping', label: '待发货' },
-  { key: 'done', label: '已完成' }
+  { key: 'done', label: '已完成' },
+  { key: 'out_of_stock', label: '缺货异常' },
+  { key: 'cancelled', label: '已取消' },
+  { key: 'refund_processing', label: '退款中' }
 ] as const;
 
 const categories = ['潮流服饰', '数码好物', '居家精选', '食品生鲜', '美妆个护', '运动户外', '母婴亲子', '百货日用'];
 const quickFeeds = ['会员日每周三满199减30', '开学季数码会场最高12期免息', '晚8点秒杀专场已开启，库存告急'];
 const serviceEntries = ['售后进度', '退款管理', '发票助手', '在线客服', '会员权益', '隐私设置'];
 
-const orderStatusMeta: Record<string, { tone: string; progress: number }> = {
-  pending: { tone: 'text-amber-600', progress: 25 },
-  paid: { tone: 'text-sky-600', progress: 45 },
-  shipping: { tone: 'text-indigo-600', progress: 75 },
-  done: { tone: 'text-emerald-600', progress: 100 }
+const orderStatusMeta: Record<string, { tone: string; progress: number; label: string }> = {
+  pending: { tone: 'text-amber-600', progress: 25, label: '待付款' },
+  paid: { tone: 'text-sky-600', progress: 45, label: '已支付' },
+  shipping: { tone: 'text-indigo-600', progress: 75, label: '待发货' },
+  done: { tone: 'text-emerald-600', progress: 100, label: '已完成' },
+  cancelled: { tone: 'text-slate-500', progress: 0, label: '已取消' },
+  out_of_stock: { tone: 'text-rose-600', progress: 30, label: '缺货异常' },
+  refund_processing: { tone: 'text-orange-600', progress: 55, label: '退款中' },
+  refund_done: { tone: 'text-cyan-600', progress: 100, label: '退款完成' }
 };
 
 function usePath() {
@@ -74,6 +82,7 @@ export default function App() {
   const [keyword, setKeyword] = useState('');
   const [category, setCategory] = useState<(typeof categoryOptions)[number]['value']>('all');
   const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]['value']>('smart');
+  const [productPage, setProductPage] = useState(1);
   const [bannerIndex, setBannerIndex] = useState(0);
   const [toast, setToast] = useState('');
   const [compareIds, setCompareIds] = useState<string[]>([]);
@@ -90,31 +99,12 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const filteredProducts = useMemo(() => {
-    const list = products.filter((p) => {
-      const hitKeyword = p.title.toLowerCase().includes(keyword.toLowerCase());
-      const hitCategory = category === 'all' || p.category === category;
-      return hitKeyword && hitCategory;
-    });
+  const filteredProducts = useMemo(() => filterAndSortProducts(products, keyword, category, sortBy), [products, keyword, category, sortBy]);
+  const paginatedProducts = useMemo(() => paginateItems(filteredProducts, productPage, 16), [filteredProducts, productPage]);
 
-    return [...list].sort((a, b) => {
-      const scoreA = (a.rating || 0) * 20 + (a.soldCount || 0) / 100;
-      const scoreB = (b.rating || 0) * 20 + (b.soldCount || 0) / 100;
-      switch (sortBy) {
-        case 'sold':
-          return (b.soldCount || 0) - (a.soldCount || 0);
-        case 'rating':
-          return (b.rating || 0) - (a.rating || 0);
-        case 'price-asc':
-          return a.price - b.price;
-        case 'price-desc':
-          return b.price - a.price;
-        case 'smart':
-        default:
-          return scoreB - scoreA;
-      }
-    });
-  }, [products, keyword, category, sortBy]);
+  useEffect(() => {
+    setProductPage(1);
+  }, [keyword, category, sortBy]);
 
   const compareProducts = products.filter((p) => compareIds.includes(p.id));
 
@@ -275,30 +265,38 @@ export default function App() {
           ) : isError ? (
             <EmptyState title="商品加载失败" desc="请稍后重试" />
           ) : (
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              {filteredProducts.map((p) => (
-                <div key={p.id} className="rounded-3xl border border-transparent p-1 transition hover:border-slate-200">
-                  <button className="w-full text-left" onClick={() => go(`/product/${p.id}`)}>
-                    <ProductCard
-                      title={p.title}
-                      price={p.price}
-                      originPrice={p.originPrice}
-                      image={p.image}
-                      tags={p.tags}
-                      rating={p.rating}
-                      soldCount={p.soldCount}
-                    />
-                  </button>
-                  <div className="mt-2 flex gap-2">
-                    <Button className="flex-1" onClick={() => onAddCart(p)}>加入购物车</Button>
-                    <Button variant="secondary" onClick={() => toggleFavorite(p.id)}>{favorites.includes(p.id) ? '♥' : '♡'}</Button>
+            <>
+              <div className="mb-3 text-xs text-slate-500">共 {paginatedProducts.total} 件，当前已渲染 {paginatedProducts.visible.length} 件</div>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                {paginatedProducts.visible.map((p) => (
+                  <div key={p.id} className="rounded-3xl border border-transparent p-1 transition hover:border-slate-200">
+                    <button className="w-full text-left" onClick={() => go(`/product/${p.id}`)}>
+                      <ProductCard
+                        title={p.title}
+                        price={p.price}
+                        originPrice={p.originPrice}
+                        image={p.image}
+                        tags={[...(p.tags || []), ...((p as any).promoTags || [])]}
+                        rating={p.rating}
+                        soldCount={p.soldCount}
+                      />
+                    </button>
+                    <div className="mt-2 flex gap-2">
+                      <Button className="flex-1" onClick={() => onAddCart(p)}>加入购物车</Button>
+                      <Button variant="secondary" onClick={() => toggleFavorite(p.id)}>{favorites.includes(p.id) ? '♥' : '♡'}</Button>
+                    </div>
+                    <button className="mt-2 w-full rounded-xl bg-slate-100 py-1 text-xs text-slate-600 hover:bg-slate-200" onClick={() => toggleCompare(p.id)}>
+                      {compareIds.includes(p.id) ? '取消对比' : '加入对比'}
+                    </button>
                   </div>
-                  <button className="mt-2 w-full rounded-xl bg-slate-100 py-1 text-xs text-slate-600 hover:bg-slate-200" onClick={() => toggleCompare(p.id)}>
-                    {compareIds.includes(p.id) ? '取消对比' : '加入对比'}
-                  </button>
+                ))}
+              </div>
+              {paginatedProducts.hasMore ? (
+                <div className="mt-4 text-center">
+                  <Button variant="secondary" onClick={() => setProductPage((p) => p + 1)}>加载更多</Button>
                 </div>
-              ))}
-            </div>
+              ) : null}
+            </>
           )}
         </Card>
 
@@ -386,6 +384,7 @@ function ProductDetailPage({
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [previewImage, setPreviewImage] = useState('');
   const [reviewTab, setReviewTab] = useState<'all' | 'withPic' | 'low'>('all');
+  const [reviewPage, setReviewPage] = useState(1);
 
   if (!product) return <div className="mx-auto max-w-6xl p-4"><Skeleton className="h-96" /></div>;
 
@@ -393,11 +392,8 @@ function ProductDetailPage({
   const allSpecSelected = (product.specs || []).every((spec) => selected[spec.name]);
   const images = product.images?.length ? product.images : [product.image];
   const activeImage = previewImage || images[0];
-  const filteredReviews = reviews.filter((r) => {
-    if (reviewTab === 'withPic') return r.content.includes('图') || r.content.includes('晒');
-    if (reviewTab === 'low') return r.rating <= 3;
-    return true;
-  });
+  const reviewData = buildReviewChunks(reviews, reviewTab, 12);
+  const filteredReviews = reviewData.chunk(reviewPage);
   const recommendProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
 
   return (
@@ -416,6 +412,7 @@ function ProductDetailPage({
         <div>
           <h1 className="text-2xl font-bold">{product.title}</h1>
           <p className="mt-1 text-sm text-slate-500">{product.subtitle}</p>
+          <p className="mt-1 text-xs text-slate-400">品牌：{product.brand || 'Mall Select'} · 评价 {product.reviewCount || reviews.length}</p>
           <div className="mt-3 flex items-end gap-2">
             <span className="text-3xl font-bold text-[var(--color-brand)]">¥{product.price}</span>
             {product.originPrice ? <span className="text-sm text-slate-400 line-through">¥{product.originPrice}</span> : null}
@@ -475,18 +472,22 @@ function ProductDetailPage({
       <Card className="p-4">
         <SectionTitle extra={<p className="text-sm text-amber-600">好评率 {reviews.length ? Math.round((reviews.filter((x) => x.rating >= 4).length / reviews.length) * 100) : 0}%</p>}>评价预览</SectionTitle>
         <div className="mb-3 flex gap-2">
-          <Button size="sm" variant={reviewTab === 'all' ? 'primary' : 'secondary'} onClick={() => setReviewTab('all')}>全部({reviews.length})</Button>
-          <Button size="sm" variant={reviewTab === 'withPic' ? 'primary' : 'secondary'} onClick={() => setReviewTab('withPic')}>有图/追评</Button>
-          <Button size="sm" variant={reviewTab === 'low' ? 'primary' : 'secondary'} onClick={() => setReviewTab('low')}>低分评价</Button>
+          <Button size="sm" variant={reviewTab === 'all' ? 'primary' : 'secondary'} onClick={() => { setReviewTab('all'); setReviewPage(1); }}>全部({reviewData.filtered.length})</Button>
+          <Button size="sm" variant={reviewTab === 'withPic' ? 'primary' : 'secondary'} onClick={() => { setReviewTab('withPic'); setReviewPage(1); }}>有图/追评</Button>
+          <Button size="sm" variant={reviewTab === 'low' ? 'primary' : 'secondary'} onClick={() => { setReviewTab('low'); setReviewPage(1); }}>低分评价</Button>
         </div>
         <div className="space-y-3">
-          {filteredReviews.slice(0, 4).map((r) => (
+          {filteredReviews.map((r) => (
             <div key={r.id} className="rounded-2xl bg-slate-50 p-3 text-sm">
               <p className="font-medium">{r.user} · ⭐ {r.rating}</p>
               <p className="mt-1 text-slate-600">{r.content}</p>
+              {r.images?.length ? <p className="mt-1 text-xs text-slate-500">📷 晒图 {r.images.length} 张</p> : null}
+              {r.appendComment ? <p className="mt-1 rounded-xl bg-white p-2 text-xs text-slate-500">追评：{r.appendComment}</p> : null}
             </div>
           ))}
           {!filteredReviews.length ? <EmptyState title="暂无匹配评价" desc="换个筛选试试" /> : null}
+          {reviewData.hasMore(reviewPage) ? <div className="text-center"><Button size="sm" variant="secondary" onClick={() => setReviewPage((p) => p + 1)}>加载更多评价</Button></div> : null}
+          {reviewPage > 1 && !reviewData.hasMore(reviewPage) ? <div className="text-center"><Button size="sm" variant="ghost" onClick={() => setReviewPage(1)}>收起到首屏</Button></div> : null}
         </div>
       </Card>
       <Card className="p-4">
@@ -708,19 +709,23 @@ function MePage({ go }: { go: (x: string) => void }) {
 
 function OrdersPage({ go }: { go: (x: string) => void }) {
   const [tab, setTab] = useState('all');
-  const { data: orders = [] } = useOrdersQuery(tab);
+  const [keyword, setKeyword] = useState('');
+  const { data: orders = [], isError } = useOrdersQuery();
   const [serviceApplyId, setServiceApplyId] = useState('');
   const [serviceReason, setServiceReason] = useState('');
+  const list = filterOrderList(orders, keyword, tab);
 
   return (
     <main className="mx-auto max-w-6xl p-3 md:p-4">
       <Card className="p-4">
         <SectionTitle extra={<Button variant="ghost" onClick={() => go('/me')}>返回个人中心</Button>}>我的订单</SectionTitle>
-        <div className="mb-4 flex gap-2">{orderTabs.map((t) => <button key={t.key} className={`rounded-xl px-3 py-1 text-sm ${tab === t.key ? 'bg-slate-900 text-white' : 'bg-slate-100'}`} onClick={() => setTab(t.key)}>{t.label}</button>)}</div>
-        {!orders.length ? <EmptyState title="该状态暂无订单" desc="可切换标签查看其他订单" /> : null}
-        <div className="space-y-3">{orders.map((o) => {
-          const meta = orderStatusMeta[o.status] || { tone: 'text-slate-600', progress: 40 };
-          return <div key={o.id} className="rounded-2xl border border-slate-100 p-3 text-sm"><div className="flex justify-between"><span>订单号 {o.id}</span><span className={meta.tone}>{o.status}</span></div><div className="mt-1 flex justify-between text-slate-500"><span>{o.createdAt}</span><span>{o.itemCount} 件 · ¥{o.amount}</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${meta.progress}%` }} /></div><div className="mt-2 flex gap-2"><Button size="sm" variant="secondary" onClick={() => setServiceApplyId(o.id)}>申请售后</Button><Button size="sm" variant="ghost">查看详情</Button></div></div>;
+        <input aria-label="搜索订单" className="mb-3 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm" placeholder="搜索订单号/状态" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+        <div className="mb-4 flex flex-wrap gap-2">{orderTabs.map((t) => <button key={t.key} className={`rounded-xl px-3 py-1 text-sm ${tab === t.key ? 'bg-slate-900 text-white' : 'bg-slate-100'}`} onClick={() => setTab(t.key)}>{t.label}</button>)}</div>
+        {isError ? <EmptyState title="订单加载失败" desc="请刷新重试" /> : null}
+        {!isError && !list.length ? <EmptyState title="暂无匹配订单" desc="请修改筛选条件" /> : null}
+        <div className="space-y-3">{list.map((o) => {
+          const meta = orderStatusMeta[o.status] || { tone: 'text-slate-600', progress: 40, label: o.status };
+          return <div key={o.id} className="rounded-2xl border border-slate-100 p-3 text-sm"><div className="flex justify-between"><span>订单号 {o.id}</span><span className={meta.tone}>{meta.label}</span></div><div className="mt-1 flex justify-between text-slate-500"><span>{o.createdAt}</span><span>{o.itemCount} 件 · ¥{o.amount}</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${meta.progress}%` }} /></div><div className="mt-2 flex gap-2"><Button size="sm" variant="secondary" onClick={() => setServiceApplyId(o.id)}>申请售后</Button><Button size="sm" variant="ghost">查看详情</Button></div></div>;
         })}</div>
       </Card>
       {serviceApplyId ? (
@@ -749,19 +754,31 @@ function AddressesPage() {
 }
 
 function NotificationsPage() {
-  const { data: notifications = [] } = useNotificationsQuery();
+  const { data: notifications = [], isError } = useNotificationsQuery();
   const [tab, setTab] = useState<'all' | 'unread'>('all');
-  const list = notifications.filter((x) => (tab === 'unread' ? !x.read : true));
+  const [keyword, setKeyword] = useState('');
+  const [type, setType] = useState<'all' | 'logistics' | 'promo' | 'price_drop' | 'service'>('all');
+  const list = filterNotificationsList(notifications, tab, keyword, type);
 
   return (
     <main className="mx-auto max-w-6xl p-3 md:p-4">
       <Card className="p-4">
         <SectionTitle>消息通知中心</SectionTitle>
-        <div className="mb-3 flex gap-2">
+        <input aria-label="搜索消息" className="mb-3 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm" placeholder="搜索标题或内容" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+        <div className="mb-3 flex flex-wrap gap-2">
           <Button size="sm" variant={tab === 'all' ? 'primary' : 'secondary'} onClick={() => setTab('all')}>全部</Button>
           <Button size="sm" variant={tab === 'unread' ? 'primary' : 'secondary'} onClick={() => setTab('unread')}>未读</Button>
+          <select aria-label="消息类型" value={type} onChange={(e) => setType(e.target.value as typeof type)} className="rounded-xl border border-slate-200 px-3 py-1 text-sm">
+            <option value="all">全部类型</option>
+            <option value="logistics">物流</option>
+            <option value="promo">促销</option>
+            <option value="price_drop">降价</option>
+            <option value="service">服务</option>
+          </select>
         </div>
-        {!list.length ? <EmptyState title="暂无消息" /> : (
+        {isError ? <EmptyState title="消息加载失败" desc="请稍后重试" /> : null}
+        {!isError && !list.length ? <EmptyState title="暂无匹配消息" desc="可尝试切换筛选项" /> : null}
+        {!isError && list.length ? (
           <div className="space-y-2">
             {list.map((n) => (
               <div key={n.id} className={`rounded-2xl border p-3 text-sm ${n.read ? 'border-slate-100 bg-white' : 'border-orange-200 bg-orange-50'}`}>
@@ -770,7 +787,7 @@ function NotificationsPage() {
               </div>
             ))}
           </div>
-        )}
+        ) : null}
       </Card>
     </main>
   );
