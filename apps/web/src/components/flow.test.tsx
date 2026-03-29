@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from '../pages/App';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
+import { useCartStore } from '@mall/store';
 
 const baseProduct = {
   id: 'p1',
@@ -52,7 +53,10 @@ test('can open detail page and show review', async () => {
 });
 
 test('checkout submit button visible in cart flow', async () => {
-  window.history.pushState({}, '', '/');
+  useCartStore.getState().clear();
+  useCartStore.getState().addItem({ id: 'p1', name: '测试商品', image: 'https://x.y/1.png', price: 100 });
+
+  window.history.pushState({}, '', '/cart');
   const client = new QueryClient();
   render(
     <QueryClientProvider client={client}>
@@ -60,8 +64,5 @@ test('checkout submit button visible in cart flow', async () => {
     </QueryClientProvider>
   );
 
-  const addBtn = await screen.findByRole('button', { name: '加入购物车' });
-  fireEvent.click(addBtn);
-  fireEvent.click(screen.getByRole('button', { name: '购物车' }));
   expect(await screen.findByRole('button', { name: '去结算' })).toBeInTheDocument();
 });

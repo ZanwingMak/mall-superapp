@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.5.2 - 2026-03-29
+
+### Added
+- Mock 数据再次扩容：`products=240`、`reviews=960`、`orders=200`、`notifications=280`、`footprints=360`、`addresses=30`、`coupons=30`，并保持分类、价格带、评分、状态与活动标签的真实分布。
+- 评价统计能力：新增好/中/差评与有图(含追评)占比概览；评价分页新增“已显示 x / 总数”提示。
+- 新增/增强单测（10 条 list-utils 用例），覆盖过滤、分页 showing、统计聚合、状态映射等逻辑。
+
+### Changed
+- 首页商品区体验优化：筛选状态可视化、筛选切换骨架过渡、加载更多进度文案、回到顶部按钮。
+- 订单页：筛选+搜索结果统计、状态标签 chip 化并增强视觉层级。
+- 消息页：类型筛选改为 chip 化，未读消息高亮更明显。
+- 通用 UI：统一空态/错误态风格，移动端字号与圆角细节微调。
+- 版本升级到 `0.5.2`。
+
+### Test
+- ✅ `pnpm --filter @mall/web build`
+- ✅ `pnpm --filter @mall/web test`
+- ✅ `pnpm --filter @mall/web e2e`
+
 ## v0.5.1 - 2026-03-29
 
 ### Added

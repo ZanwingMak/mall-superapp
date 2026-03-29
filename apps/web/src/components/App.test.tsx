@@ -54,5 +54,5 @@ test('renders upgraded home modules', async () => {
   expect(await screen.findByText('春季焕新节')).toBeInTheDocument();
   expect(screen.getByText('活动专区')).toBeInTheDocument();
   expect(screen.getByText('分类宫格')).toBeInTheDocument();
-  expect(screen.getByText('测试商品')).toBeInTheDocument();
+  expect(await screen.findByText('测试商品')).toBeInTheDocument();
 });
