@@ -14,7 +14,7 @@ import {
 } from '@mall/api-client';
 import { useCartStore } from '@mall/store';
 import { Button, Card, EmptyState, ProductCard, SectionTitle, Skeleton, Tag } from '@mall/ui';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   buildReviewChunks,
   filterAndSortProducts,
@@ -87,7 +87,6 @@ export default function App() {
   const [showComparePanel, setShowComparePanel] = useState(false);
   const [productListLoading, setProductListLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const productSectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!home?.banners?.length) return;
@@ -244,10 +243,6 @@ export default function App() {
           </div>
         </Card>
 
-        <div className="md:hidden">
-          <Button className="w-full" variant="secondary" onClick={() => productSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>直达商品区 ↓</Button>
-        </div>
-
         <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
           <Card className="p-4">
             <SectionTitle>活动专区</SectionTitle>
@@ -279,7 +274,7 @@ export default function App() {
           </div>
         </Card>
 
-        <div ref={productSectionRef}>
+        <div>
           <Card className="p-4">
             <SectionTitle extra={<Tag tone="success">新人专区</Tag>}>精选商品</SectionTitle>
           <div className="mb-3 space-y-2">
@@ -375,13 +370,13 @@ export default function App() {
         {compareProducts.length ? (
           <>
             <button
-              className="fixed bottom-36 right-4 z-20 rounded-full border border-[var(--color-brand)] bg-white px-3 py-2 text-xs text-[var(--color-brand)] shadow-[var(--shadow-sm)] md:bottom-24"
+              className="fixed bottom-24 right-4 z-30 rounded-full border border-[var(--color-brand)] bg-white px-3 py-2 text-xs text-[var(--color-brand)] shadow-[var(--shadow-sm)] md:bottom-24"
               onClick={() => setShowComparePanel((v) => !v)}
             >
               {showComparePanel ? '收起对比' : `商品对比 (${compareProducts.length})`}
             </button>
             {showComparePanel ? (
-              <div className="fixed inset-x-2 bottom-24 z-20 max-h-[46vh] overflow-auto rounded-3xl bg-white shadow-[var(--shadow-md)] md:inset-x-auto md:right-4 md:w-[680px]">
+              <div className="fixed inset-x-2 bottom-36 z-20 max-h-[42vh] overflow-auto rounded-3xl bg-white shadow-[var(--shadow-md)] md:inset-x-auto md:bottom-24 md:right-4 md:w-[680px]">
                 <ComparePanel products={compareProducts} onToggleCompare={toggleCompare} />
               </div>
             ) : null}
@@ -389,7 +384,7 @@ export default function App() {
         ) : null}
 
         <button
-          className="fixed bottom-24 right-4 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs shadow-[var(--shadow-sm)] md:bottom-8"
+          className="fixed bottom-14 right-4 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs shadow-[var(--shadow-sm)] md:bottom-8"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
           回到顶部 ↑
@@ -419,7 +414,7 @@ function PageWrap({
       {header}
       <div className="pb-20 md:pb-0">{children}</div>
       <BottomTabBar path={path} go={go} unreadCount={unreadCount} />
-      {toast ? <div className="fixed top-16 left-1/2 z-30 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs text-white md:top-auto md:bottom-8">{toast}</div> : null}
+      {toast ? <div className="fixed bottom-36 left-1/2 z-40 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs text-white md:bottom-8">{toast}</div> : null}
     </div>
   );
 }
