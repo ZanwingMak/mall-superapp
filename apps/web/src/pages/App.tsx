@@ -161,7 +161,7 @@ export default function App() {
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="搜索商品、品牌、品类"
         />
-        <div className="ml-auto flex items-center gap-1.5 md:gap-2">
+        <div className="ml-auto hidden items-center gap-1.5 md:flex md:gap-2">
           <Button size="sm" variant="secondary" onClick={() => go('/notifications')}>
             消息{unreadCount ? `(${unreadCount})` : ''}
           </Button>
@@ -178,23 +178,23 @@ export default function App() {
 
   if (path.startsWith('/product/')) {
     return (
-      <PageWrap header={Header} toast={toast}>
+      <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}>
         <ProductDetailPage id={path.replace('/product/', '')} go={go} onBuyNowToast={setToast} onToggleCompare={toggleCompare} compareIds={compareIds} products={products} />
       </PageWrap>
     );
   }
-  if (path === '/cart') return <PageWrap header={Header} toast={toast}><CartPage go={go} /></PageWrap>;
-  if (path === '/checkout') return <PageWrap header={Header} toast={toast}><CheckoutPage go={go} /></PageWrap>;
-  if (path === '/success') return <PageWrap header={Header} toast={toast}><SuccessPage go={go} /></PageWrap>;
-  if (path === '/orders') return <PageWrap header={Header} toast={toast}><OrdersPage go={go} /></PageWrap>;
-  if (path === '/favorites') return <PageWrap header={Header} toast={toast}><FavoritesPage go={go} products={products} /></PageWrap>;
-  if (path === '/addresses') return <PageWrap header={Header} toast={toast}><AddressesPage go={go} /></PageWrap>;
-  if (path === '/notifications') return <PageWrap header={Header} toast={toast}><NotificationsPage /></PageWrap>;
-  if (path === '/footprints') return <PageWrap header={Header} toast={toast}><FootprintsPage go={go} products={products} /></PageWrap>;
-  if (path === '/me') return <PageWrap header={Header} toast={toast}><MePage go={go} /></PageWrap>;
+  if (path === '/cart') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><CartPage go={go} /></PageWrap>;
+  if (path === '/checkout') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><CheckoutPage go={go} /></PageWrap>;
+  if (path === '/success') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><SuccessPage go={go} /></PageWrap>;
+  if (path === '/orders') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><OrdersPage go={go} /></PageWrap>;
+  if (path === '/favorites') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><FavoritesPage go={go} products={products} /></PageWrap>;
+  if (path === '/addresses') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><AddressesPage go={go} /></PageWrap>;
+  if (path === '/notifications') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><NotificationsPage /></PageWrap>;
+  if (path === '/footprints') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><FootprintsPage go={go} products={products} /></PageWrap>;
+  if (path === '/me') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><MePage go={go} /></PageWrap>;
 
   return (
-    <PageWrap header={Header} toast={toast}>
+    <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}>
       <main className="mx-auto max-w-6xl space-y-5 px-3 pb-10 md:px-4">
         <Card className="overflow-hidden">
           {home?.banners?.length ? (
@@ -351,13 +351,69 @@ export default function App() {
   );
 }
 
-function PageWrap({ header, toast, children }: { header: React.ReactNode; toast: string; children: React.ReactNode }) {
+function PageWrap({
+  header,
+  toast,
+  children,
+  path,
+  go,
+  unreadCount
+}: {
+  header: React.ReactNode;
+  toast: string;
+  children: React.ReactNode;
+  path: string;
+  go: (x: string) => void;
+  unreadCount: number;
+}) {
   return (
     <div>
       {header}
-      {children}
-      {toast ? <div className="fixed bottom-8 left-1/2 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs text-white">{toast}</div> : null}
+      <div className="pb-20 md:pb-0">{children}</div>
+      <BottomTabBar path={path} go={go} unreadCount={unreadCount} />
+      {toast ? <div className="fixed bottom-24 left-1/2 z-10 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs text-white md:bottom-8">{toast}</div> : null}
     </div>
+  );
+}
+
+function BottomTabBar({ path, go, unreadCount }: { path: string; go: (x: string) => void; unreadCount: number }) {
+  const activeKey = path.startsWith('/cart') || path.startsWith('/checkout')
+    ? 'cart'
+    : path.startsWith('/notifications')
+      ? 'notifications'
+      : path.startsWith('/orders')
+        ? 'orders'
+        : path.startsWith('/me') || path.startsWith('/favorites') || path.startsWith('/addresses') || path.startsWith('/footprints')
+          ? 'me'
+          : 'home';
+
+  const items = [
+    { key: 'home', label: '首页', icon: '🏠', to: '/' },
+    { key: 'notifications', label: '消息', icon: '🔔', to: '/notifications' },
+    { key: 'cart', label: '购物车', icon: '🛒', to: '/cart' },
+    { key: 'orders', label: '订单', icon: '📦', to: '/orders' },
+    { key: 'me', label: '我的', icon: '👤', to: '/me' }
+  ];
+
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 px-2 py-1 backdrop-blur md:hidden">
+      <div className="mx-auto grid max-w-6xl grid-cols-5 gap-1">
+        {items.map((item) => {
+          const active = item.key === activeKey;
+          return (
+            <button
+              key={item.key}
+              className={`relative rounded-xl px-1 py-2 text-center text-xs ${active ? 'bg-[var(--color-brand-soft)] font-semibold text-[var(--color-brand)]' : 'text-slate-500'}`}
+              onClick={() => go(item.to)}
+            >
+              <div>{item.icon}</div>
+              <div className="mt-0.5">{item.label}</div>
+              {item.key === 'notifications' && unreadCount > 0 ? <span className="absolute right-3 top-1 rounded-full bg-rose-500 px-1 text-[10px] text-white">{unreadCount}</span> : null}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
 
