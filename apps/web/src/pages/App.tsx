@@ -123,10 +123,6 @@ export default function App() {
         if (!next.length) setShowComparePanel(false);
         return next;
       }
-      if (prev.length >= 3) {
-        setToast('最多对比 3 件商品');
-        return prev;
-      }
       const next = [...prev, id];
       setShowComparePanel(true);
       return next;
@@ -489,13 +485,13 @@ function ActivityCard({ id, title, desc, badge }: { id: string; title: string; d
 function ComparePanel({ products, onToggleCompare }: { products: any[]; onToggleCompare: (id: string) => void }) {
   return (
     <Card className="p-4">
-      <SectionTitle extra={<Tag tone="default">最多 3 件</Tag>}>商品对比</SectionTitle>
+      <SectionTitle extra={<Tag tone="default">已选 {products.length} 件</Tag>}>商品对比</SectionTitle>
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
+        <table className="min-w-[860px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-slate-500">
-              <th className="p-2">维度</th>
-              {products.map((p) => <th key={p.id} className="p-2">{p.title}</th>)}
+              <th className="min-w-[92px] p-2">维度</th>
+              {products.map((p) => <th key={p.id} className="min-w-[180px] p-2">{p.title}</th>)}
             </tr>
           </thead>
           <tbody>
