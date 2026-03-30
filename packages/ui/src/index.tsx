@@ -48,7 +48,7 @@ export function ProductCard({
   originPrice?: number;
 }) {
   return (
-    <div className="group rounded-3xl border border-slate-100 bg-white p-3 shadow-[var(--shadow-sm)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]">
+    <div className="group flex h-full flex-col rounded-3xl border border-slate-100 bg-white p-3 shadow-[var(--shadow-sm)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]">
       <div className="relative overflow-hidden rounded-2xl bg-slate-100">
         <img src={image} alt={title} className="h-44 w-full object-cover transition duration-300 group-hover:scale-105" />
         {originPrice && originPrice > price ? (
@@ -69,11 +69,11 @@ export function ProductCard({
         ))}
       </div>
       <h3 className="mt-2 line-clamp-2 text-sm font-medium text-slate-800">{title}</h3>
-      <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
-        {rating ? <span>⭐ {rating.toFixed(1)}</span> : null}
+      <div className="mt-1 min-h-4 flex items-center gap-2 text-xs text-slate-500">
+        {rating ? <span>⭐ {rating.toFixed(1)}</span> : <span className="opacity-0">占位</span>}
         {soldCount ? <span>已售 {soldCount}</span> : null}
       </div>
-      <div className="mt-2 flex items-end gap-2">
+      <div className="mt-auto pt-2 flex items-end gap-2">
         <p className="text-lg font-bold text-[var(--color-brand)]">¥{price.toFixed(2)}</p>
         {originPrice && originPrice > price ? <p className="text-xs text-slate-400 line-through">¥{originPrice.toFixed(2)}</p> : null}
       </div>

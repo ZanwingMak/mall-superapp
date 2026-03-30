@@ -84,6 +84,7 @@ export default function App() {
   const [bannerIndex, setBannerIndex] = useState(0);
   const [toast, setToast] = useState('');
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [showComparePanel, setShowComparePanel] = useState(false);
   const [productListLoading, setProductListLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -117,12 +118,18 @@ export default function App() {
 
   const toggleCompare = (id: string) => {
     setCompareIds((prev) => {
-      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.includes(id)) {
+        const next = prev.filter((x) => x !== id);
+        if (!next.length) setShowComparePanel(false);
+        return next;
+      }
       if (prev.length >= 3) {
         setToast('最多对比 3 件商品');
         return prev;
       }
-      return [...prev, id];
+      const next = [...prev, id];
+      setShowComparePanel(true);
+      return next;
     });
   };
 
@@ -155,14 +162,16 @@ export default function App() {
         <button className="text-sm font-bold text-[var(--color-brand)] md:text-base" onClick={() => go('/')}>
           Mall SuperApp
         </button>
-        <input
-          aria-label="搜索商品"
-          className="order-3 h-10 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-[var(--color-brand)] focus:bg-white md:order-none md:flex-1"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder="搜索商品、品牌、品类"
-        />
-        <Button size="sm" className="order-2 md:order-none" onClick={() => { setKeyword((v) => v.trim()); setToast('已按关键词筛选'); }}>搜索</Button>
+        <div className="order-3 flex w-full items-center gap-2 md:order-none md:flex-1">
+          <input
+            aria-label="搜索商品"
+            className="h-10 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-[var(--color-brand)] focus:bg-white"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="搜索商品、品牌、品类"
+          />
+          <Button size="sm" onClick={() => { setKeyword((v) => v.trim()); setToast('已按关键词筛选'); }}>搜索</Button>
+        </div>
         <div className="ml-auto hidden items-center gap-1.5 md:flex md:gap-2">
           <Button size="sm" variant="secondary" onClick={() => go('/notifications')}>
             消息{unreadCount ? `(${unreadCount})` : ''}
@@ -256,8 +265,6 @@ export default function App() {
           </Card>
         </div>
 
-        {compareProducts.length ? <ComparePanel products={compareProducts} onToggleCompare={toggleCompare} /> : null}
-
         <Card className="p-4">
           <SectionTitle>分类宫格</SectionTitle>
           <div className="grid grid-cols-4 gap-2 md:grid-cols-8">
@@ -269,24 +276,29 @@ export default function App() {
 
         <Card className="p-4">
           <SectionTitle extra={<Tag tone="success">新人专区</Tag>}>精选商品</SectionTitle>
-          <div className="mb-3 flex flex-wrap gap-2">
-            {categoryOptions.map((option) => (
-              <button
-                key={option.value}
-                className={`rounded-xl px-3 py-1 text-sm transition ${category === option.value ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-                onClick={() => setCategory(option.value)}
+          <div className="mb-3 space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {categoryOptions.map((option) => (
+                <button
+                  key={option.value}
+                  className={`rounded-xl px-3 py-1 text-sm transition ${category === option.value ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  onClick={() => setCategory(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500">排序</span>
+              <select
+                aria-label="智能排序"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as (typeof sortOptions)[number]['value'])}
+                className="h-9 flex-1 rounded-xl border border-slate-200 px-3 py-1 text-sm md:ml-auto md:max-w-[220px]"
               >
-                {option.label}
-              </button>
-            ))}
-            <select
-              aria-label="智能排序"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as (typeof sortOptions)[number]['value'])}
-              className="h-9 w-full rounded-xl border border-slate-200 px-3 py-1 text-sm md:ml-auto md:w-auto"
-            >
-              {sortOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-            </select>
+                {sortOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+            </div>
           </div>
           {productsLoading || productListLoading ? (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-64" />)}</div>
@@ -352,6 +364,22 @@ export default function App() {
             </>
           )}
         </Card>
+
+        {compareProducts.length ? (
+          <>
+            <button
+              className="fixed bottom-40 right-4 z-20 rounded-full border border-[var(--color-brand)] bg-white px-3 py-2 text-xs text-[var(--color-brand)] shadow-[var(--shadow-sm)] md:bottom-24"
+              onClick={() => setShowComparePanel((v) => !v)}
+            >
+              商品对比 ({compareProducts.length})
+            </button>
+            {showComparePanel ? (
+              <div className="fixed inset-x-2 bottom-24 z-20 max-h-[52vh] overflow-auto rounded-3xl bg-white shadow-[var(--shadow-md)] md:inset-x-auto md:right-4 md:w-[680px]">
+                <ComparePanel products={compareProducts} onToggleCompare={toggleCompare} />
+              </div>
+            ) : null}
+          </>
+        ) : null}
 
         <button
           className="fixed bottom-24 right-4 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs shadow-[var(--shadow-sm)] md:bottom-8"
@@ -871,6 +899,7 @@ function SuccessPage({ go }: { go: (x: string) => void }) {
 function MePage({ go }: { go: (x: string) => void }) {
   const [editing, setEditing] = useState(false);
   const [profile, setProfile] = useState({ nickname: '张三', phone: '138****8888', bio: '热爱品质生活与数码好物' });
+  const { data: orders = [] } = useOrdersQuery();
 
   return (
     <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
@@ -881,7 +910,15 @@ function MePage({ go }: { go: (x: string) => void }) {
         </div>
         {editing ? <div className="mt-3 grid gap-2 text-sm md:grid-cols-2"><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.nickname} onChange={(e) => setProfile((p) => ({ ...p, nickname: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2 md:col-span-2" value={profile.bio} onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))} /></div> : <p className="mt-2 text-xs text-slate-500">{profile.bio}</p>}
       </Card>
-      <Card className="p-4"><SectionTitle>我的订单</SectionTitle><div className="grid grid-cols-4 gap-2 text-center text-sm">{orderTabs.slice(1).map((t) => <button key={t.key} className="rounded-xl bg-slate-50 py-3" onClick={() => go('/orders')}>{t.label}</button>)}</div></Card>
+      <Card className="p-4">
+        <SectionTitle extra={<span className="text-xs text-slate-500">最近 {orders.length} 条</span>}>我的订单</SectionTitle>
+        <div className="grid grid-cols-2 gap-2 text-center text-sm md:grid-cols-4">
+          {orderTabs.slice(1).map((t) => {
+            const count = orders.filter((o) => t.key === 'all' || o.status === t.key).length;
+            return <button key={t.key} className="rounded-xl bg-slate-50 py-3" onClick={() => go('/orders')}>{t.label}<span className="ml-1 text-xs text-slate-500">{count}</span></button>;
+          })}
+        </div>
+      </Card>
       <Card className="p-4">
         <SectionTitle>服务中心</SectionTitle>
         <div className="grid grid-cols-3 gap-2 text-center text-sm md:grid-cols-6">{serviceEntries.map((name) => <button key={name} className="rounded-xl bg-slate-50 py-3">{name}</button>)}</div>
