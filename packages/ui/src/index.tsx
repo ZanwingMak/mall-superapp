@@ -73,9 +73,12 @@ export function ProductCard({
         {rating ? <span>⭐ {rating.toFixed(1)}</span> : <span className="opacity-0">占位</span>}
         {soldCount ? <span>已售 {soldCount}</span> : null}
       </div>
-      <div className="mt-auto pt-2 flex items-end gap-2">
-        <p className="text-lg font-bold text-[var(--color-brand)]">¥{price.toFixed(2)}</p>
-        {originPrice && originPrice > price ? <p className="text-xs text-slate-400 line-through">¥{originPrice.toFixed(2)}</p> : null}
+      <div className="mt-auto pt-2 space-y-1">
+        <div className="flex items-end gap-2">
+          <p className="text-lg font-bold text-[var(--color-brand)]">¥{price.toFixed(2)}</p>
+          {originPrice && originPrice > price ? <p className="text-xs text-slate-400 line-through">¥{originPrice.toFixed(2)}</p> : null}
+        </div>
+        <p className="text-xs text-rose-600">券后价可再减 ¥{Math.max(1, Math.round(price * 0.06))}</p>
       </div>
     </div>
   );

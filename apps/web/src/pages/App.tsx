@@ -187,7 +187,7 @@ export default function App() {
 
   if (path.startsWith('/product/')) {
     return (
-      <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}>
+      <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount} hideBottomNav>
         <ProductDetailPage id={path.replace('/product/', '')} go={go} onBuyNowToast={setToast} onToggleCompare={toggleCompare} compareIds={compareIds} products={products} />
       </PageWrap>
     );
@@ -220,11 +220,18 @@ export default function App() {
         </Card>
 
         <Card className="p-4 md:hidden">
-          <div className="rounded-2xl bg-slate-50 p-3">
-            <p className="text-xs text-slate-500">消息轮播</p>
-            <p className="mt-1 text-sm font-medium">📣 站内快讯：{quickFeeds[bannerIndex % quickFeeds.length]}</p>
-            <p className="mt-1 text-sm text-slate-700">🎁 新人权益：{(home?.newcomer || [])[bannerIndex % Math.max((home?.newcomer || []).length, 1)]?.title || '新人礼包'} · {(home?.newcomer || [])[bannerIndex % Math.max((home?.newcomer || []).length, 1)]?.perk || '注册领券包'}</p>
-            <p className="mt-1 text-sm text-slate-700">💎 会员专享：PLUS 会员 95 折 + 极速退款</p>
+          <div className="space-y-3">
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {['推荐', '极速达', '百货', '食品', '手机', '家纺', '母婴', '美妆'].map((tab) => (
+                <button key={tab} className="whitespace-nowrap rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700">{tab}</button>
+              ))}
+            </div>
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <p className="text-xs text-slate-500">消息轮播</p>
+              <p className="mt-1 text-sm font-medium">📣 站内快讯：{quickFeeds[bannerIndex % quickFeeds.length]}</p>
+              <p className="mt-1 text-sm text-slate-700">🎁 新人权益：{(home?.newcomer || [])[bannerIndex % Math.max((home?.newcomer || []).length, 1)]?.title || '新人礼包'} · {(home?.newcomer || [])[bannerIndex % Math.max((home?.newcomer || []).length, 1)]?.perk || '注册领券包'}</p>
+              <p className="mt-1 text-sm text-slate-700">💎 会员专享：PLUS 会员 95 折 + 极速退款</p>
+            </div>
           </div>
         </Card>
 
@@ -446,7 +453,8 @@ function PageWrap({
   children,
   path,
   go,
-  unreadCount
+  unreadCount,
+  hideBottomNav = false
 }: {
   header: React.ReactNode;
   toast: string;
@@ -454,12 +462,13 @@ function PageWrap({
   path: string;
   go: (x: string) => void;
   unreadCount: number;
+  hideBottomNav?: boolean;
 }) {
   return (
     <div>
       {header}
       <div className="pb-20 md:pb-0">{children}</div>
-      <BottomTabBar path={path} go={go} unreadCount={unreadCount} />
+      {!hideBottomNav ? <BottomTabBar path={path} go={go} unreadCount={unreadCount} /> : null}
       {toast ? <div className="fixed bottom-36 left-1/2 z-40 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs text-white md:bottom-8">{toast}</div> : null}
     </div>
   );
@@ -571,10 +580,12 @@ function ProductDetailPage({
 }) {
   const { data: product } = useProductDetailQuery(id);
   const { data: reviews = [] } = useReviewsQuery(id);
+  const { favorites, toggleFavorite } = useCartStore();
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [previewImage, setPreviewImage] = useState('');
   const [reviewTab, setReviewTab] = useState<'all' | 'withPic' | 'low'>('all');
   const [reviewPage, setReviewPage] = useState(1);
+  const [detailTab, setDetailTab] = useState<'goods' | 'review' | 'detail'>('goods');
 
   if (!product) return <div className="mx-auto max-w-6xl p-4"><Skeleton className="h-96" /></div>;
 
@@ -588,8 +599,15 @@ function ProductDetailPage({
   const recommendProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
 
   return (
-    <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
+    <main className="mx-auto max-w-6xl space-y-4 p-3 pb-24 md:p-4">
       <Button size="sm" variant="ghost" className="border border-slate-200 bg-white" onClick={() => window.history.length > 1 ? window.history.back() : go('/')}>← 返回</Button>
+      <div className="sticky top-[62px] z-10 rounded-2xl border border-slate-100 bg-white p-1 md:hidden">
+        <div className="grid grid-cols-3 gap-1 text-sm">
+          <button className={`rounded-xl py-2 ${detailTab === 'goods' ? 'bg-slate-900 text-white' : 'text-slate-600'}`} onClick={() => setDetailTab('goods')}>商品</button>
+          <button className={`rounded-xl py-2 ${detailTab === 'review' ? 'bg-slate-900 text-white' : 'text-slate-600'}`} onClick={() => setDetailTab('review')}>评价</button>
+          <button className={`rounded-xl py-2 ${detailTab === 'detail' ? 'bg-slate-900 text-white' : 'text-slate-600'}`} onClick={() => setDetailTab('detail')}>详情</button>
+        </div>
+      </div>
       <Card className="grid gap-4 p-4 md:grid-cols-2">
         <div>
           <img src={activeImage} alt={product.title} className="h-72 w-full rounded-2xl object-cover md:h-[420px]" />
@@ -657,11 +675,15 @@ function ProductDetailPage({
           </div>
         </div>
       </Card>
-      <Card className="p-4">
+      {(detailTab === 'detail' || detailTab === 'goods') ? <Card className="p-4">
         <SectionTitle>图文详情</SectionTitle>
         <p className="text-sm text-slate-600">{product.description}</p>
-      </Card>
-      <Card className="p-4">
+        <div className="mt-3 rounded-xl bg-slate-50 p-3 text-xs text-slate-500">
+          <p>价格说明：单独购买价 / 发起拼单价可能不同，具体以下单页结算为准。</p>
+          <p className="mt-2">特别提示：活动和优惠券存在时效，请以下单时页面展示为准。</p>
+        </div>
+      </Card> : null}
+      {(detailTab === 'review' || detailTab === 'goods') ? <Card className="p-4">
         <SectionTitle extra={<p className="text-sm text-amber-600">好评率 {reviewStats.total ? Math.round((reviewStats.positive / reviewStats.total) * 100) : 0}%</p>}>评价预览</SectionTitle>
         <div className="mb-3 grid grid-cols-2 gap-2 text-xs md:grid-cols-4">
           <div className="rounded-xl bg-emerald-50 p-2 text-emerald-700">好评 {reviewStats.positive}</div>
@@ -688,7 +710,7 @@ function ProductDetailPage({
           {reviewData.hasMore(reviewPage) ? <div className="text-center"><Button size="sm" variant="secondary" onClick={() => setReviewPage((p) => p + 1)}>加载更多评价</Button></div> : null}
           {reviewPage > 1 && !reviewData.hasMore(reviewPage) ? <div className="text-center"><Button size="sm" variant="ghost" onClick={() => setReviewPage(1)}>收起到首屏</Button></div> : null}
         </div>
-      </Card>
+      </Card> : null}
       <Card className="p-4">
         <SectionTitle>为你推荐</SectionTitle>
         {!recommendProducts.length ? <EmptyState title="推荐生成中" desc="继续浏览获取更精准推荐" /> : (
@@ -701,6 +723,17 @@ function ProductDetailPage({
           </div>
         )}
       </Card>
+
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white md:hidden">
+        <div className="grid grid-cols-[1fr_1fr_1.6fr] items-center gap-2 p-2">
+          <button className="rounded-xl bg-slate-100 py-2 text-xs" onClick={() => go('/')}>店铺</button>
+          <button className={`rounded-xl py-2 text-xs ${favorites.includes(product.id) ? 'bg-rose-100 text-rose-600' : 'bg-slate-100'}`} onClick={() => toggleFavorite(product.id)}>{favorites.includes(product.id) ? '已收藏' : '收藏'}</button>
+          <Button className="h-10" onClick={() => {
+            useCartStore.getState().setBuyNowItem({ id: product.id, name: product.title, image: product.image, price: product.price, originPrice: product.originPrice, count: 1, selected: true, skuText });
+            go('/checkout');
+          }}>发起购买 ¥{product.price}</Button>
+        </div>
+      </div>
     </main>
   );
 }
