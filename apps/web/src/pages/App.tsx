@@ -9,7 +9,8 @@ import {
   useOrdersQuery,
   useProductDetailQuery,
   useProductsQuery,
-  useReviewsQuery
+  useReviewsQuery,
+  type Address
 } from '@mall/api-client';
 import { useCartStore } from '@mall/store';
 import { Button, Card, EmptyState, ProductCard, SectionTitle, Skeleton, Tag } from '@mall/ui';
@@ -149,26 +150,28 @@ export default function App() {
 
   const Header = (
     <header className="sticky top-0 z-10 mb-4 border-b border-slate-100 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center gap-3 p-3 md:p-4">
-        <button className="text-base font-bold text-[var(--color-brand)]" onClick={() => go('/')}>
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 p-3 md:gap-3 md:p-4">
+        <button className="text-sm font-bold text-[var(--color-brand)] md:text-base" onClick={() => go('/')}>
           Mall SuperApp
         </button>
         <input
           aria-label="搜索商品"
-          className="h-10 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-[var(--color-brand)] focus:bg-white"
+          className="order-3 h-10 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-[var(--color-brand)] focus:bg-white md:order-none md:flex-1"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="搜索商品、品牌、品类"
         />
-        <Button variant="secondary" onClick={() => go('/notifications')}>
-          消息{unreadCount ? `(${unreadCount})` : ''}
-        </Button>
-        <Button variant="secondary" onClick={() => go('/cart')}>
-          购物车
-        </Button>
-        <Button variant="secondary" onClick={() => go('/me')}>
-          我的
-        </Button>
+        <div className="ml-auto flex items-center gap-1.5 md:gap-2">
+          <Button size="sm" variant="secondary" onClick={() => go('/notifications')}>
+            消息{unreadCount ? `(${unreadCount})` : ''}
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => go('/cart')}>
+            购物车
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => go('/me')}>
+            我的
+          </Button>
+        </div>
       </div>
     </header>
   );
@@ -185,7 +188,7 @@ export default function App() {
   if (path === '/success') return <PageWrap header={Header} toast={toast}><SuccessPage go={go} /></PageWrap>;
   if (path === '/orders') return <PageWrap header={Header} toast={toast}><OrdersPage go={go} /></PageWrap>;
   if (path === '/favorites') return <PageWrap header={Header} toast={toast}><FavoritesPage go={go} products={products} /></PageWrap>;
-  if (path === '/addresses') return <PageWrap header={Header} toast={toast}><AddressesPage /></PageWrap>;
+  if (path === '/addresses') return <PageWrap header={Header} toast={toast}><AddressesPage go={go} /></PageWrap>;
   if (path === '/notifications') return <PageWrap header={Header} toast={toast}><NotificationsPage /></PageWrap>;
   if (path === '/footprints') return <PageWrap header={Header} toast={toast}><FootprintsPage go={go} products={products} /></PageWrap>;
   if (path === '/me') return <PageWrap header={Header} toast={toast}><MePage go={go} /></PageWrap>;
@@ -571,33 +574,39 @@ function CartPage({ go }: { go: (x: string) => void }) {
         {!items.length ? <EmptyState title="购物车空空如也" desc="去首页逛逛吧" /> : null}
         <div className="space-y-3">
           {items.map((i) => (
-            <div key={i.id} className={`flex items-center gap-3 rounded-2xl p-3 ${i.invalid ? 'bg-slate-100 opacity-60' : 'bg-slate-50'}`}>
-              <input type="checkbox" checked={i.selected} disabled={i.invalid} onChange={() => toggleSelect(i.id)} />
-              <img src={i.image} alt={i.name} className="h-16 w-16 rounded-xl object-cover" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">{i.name}</p>
-                <p className="text-xs text-slate-500">{i.skuText || '默认规格'} {i.invalid ? '（已失效）' : ''}</p>
-                <p className="text-sm text-[var(--color-brand)]">¥{i.price}</p>
-                {i.count >= 99 ? <p className="text-xs text-amber-600">单品最多购买 99 件</p> : null}
+            <div key={i.id} className={`rounded-2xl p-3 ${i.invalid ? 'bg-slate-100 opacity-60' : 'bg-slate-50'}`}>
+              <div className="flex items-start gap-3">
+                <input type="checkbox" className="mt-1" checked={i.selected} disabled={i.invalid} onChange={() => toggleSelect(i.id)} />
+                <img src={i.image} alt={i.name} className="h-16 w-16 rounded-xl object-cover" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{i.name}</p>
+                  <p className="text-xs text-slate-500">{i.skuText || '默认规格'} {i.invalid ? '（已失效）' : ''}</p>
+                  <p className="text-sm text-[var(--color-brand)]">¥{i.price}</p>
+                  {i.count >= 99 ? <p className="text-xs text-amber-600">单品最多购买 99 件</p> : null}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button size="sm" variant="secondary" onClick={() => updateCount(i.id, i.count - 1)}>-</Button>
-                <span className="w-6 text-center text-sm">{i.count}</span>
-                <Button size="sm" variant="secondary" disabled={i.count >= 99} onClick={() => updateCount(i.id, i.count + 1)}>+</Button>
+              <div className="mt-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="secondary" onClick={() => updateCount(i.id, i.count - 1)}>-</Button>
+                  <span className="w-6 text-center text-sm">{i.count}</span>
+                  <Button size="sm" variant="secondary" disabled={i.count >= 99} onClick={() => updateCount(i.id, i.count + 1)}>+</Button>
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => removeItem(i.id)}>删除</Button>
               </div>
-              <Button size="sm" variant="ghost" onClick={() => removeItem(i.id)}>删除</Button>
             </div>
           ))}
         </div>
         {items.length ? (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-100 bg-white p-3">
-            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={allChecked} onChange={(e) => toggleSelectAll(e.target.checked)} /> 全选</label>
-            <div className="flex items-center gap-2">
+          <div className="mt-4 space-y-2 rounded-2xl border border-slate-100 bg-white p-3">
+            <div className="flex items-center justify-between gap-2">
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={allChecked} onChange={(e) => toggleSelectAll(e.target.checked)} /> 全选</label>
+              <p className="text-sm">合计：<span className="text-lg font-bold text-[var(--color-brand)]">¥{subtotal.toFixed(2)}</span></p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
               <Button variant="ghost" onClick={removeSelected}>删除选中</Button>
               {invalidItems.length ? <Button variant="ghost" onClick={() => invalidItems.forEach((x) => removeItem(x.id))}>清理失效商品</Button> : null}
+              <Button className="ml-auto" onClick={() => go('/checkout')} disabled={!checkedItems.length}>去结算</Button>
             </div>
-            <p className="text-sm">合计：<span className="text-lg font-bold text-[var(--color-brand)]">¥{subtotal.toFixed(2)}</span></p>
-            <Button onClick={() => go('/checkout')} disabled={!checkedItems.length}>去结算</Button>
           </div>
         ) : null}
       </Card>
@@ -613,7 +622,9 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
 
   const sourceItems = buyNowItem ? [buyNowItem] : items.filter((x) => x.selected && !x.invalid);
   const [selectedCoupon, setSelectedCoupon] = useState('');
-  const [selectedAddress, setSelectedAddress] = useState(addresses.find((x) => x.isDefault)?.id || '');
+  const [localAddresses, setLocalAddresses] = useState<Address[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState('');
+  const [addressForm, setAddressForm] = useState({ name: '', phone: '', city: '', detail: '', tag: '家' });
   const [remark, setRemark] = useState('');
   const [needInvoice, setNeedInvoice] = useState(false);
   const [invoiceType, setInvoiceType] = useState<'personal' | 'company'>('personal');
@@ -621,6 +632,40 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
   const [invoiceTaxNo, setInvoiceTaxNo] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  useEffect(() => {
+    if (!addresses.length) return;
+    setLocalAddresses((prev) => (prev.length ? prev : addresses));
+    setSelectedAddress((prev) => {
+      if (prev && addresses.some((x) => x.id === prev)) return prev;
+      return addresses.find((x) => x.isDefault)?.id || addresses[0]?.id || '';
+    });
+  }, [addresses]);
+
+  const activeAddresses = localAddresses.length ? localAddresses : addresses;
+  const selectedAddressInfo = activeAddresses.find((x) => x.id === selectedAddress);
+
+  const saveAddress = () => {
+    if (!addressForm.name.trim() || !addressForm.phone.trim() || !addressForm.city.trim() || !addressForm.detail.trim()) {
+      setSubmitError('请完善收货人、手机号、城市和详细地址');
+      return;
+    }
+    const next: Address = {
+      id: `local-${Date.now()}`,
+      name: `${addressForm.name.trim()} · ${addressForm.tag}`,
+      phone: addressForm.phone.trim(),
+      city: addressForm.city.trim(),
+      detail: addressForm.detail.trim(),
+      isDefault: !activeAddresses.length
+    };
+    setLocalAddresses((prev) => {
+      const merged = [next, ...prev.map((x) => ({ ...x, isDefault: false }))];
+      return merged;
+    });
+    setSelectedAddress(next.id);
+    setAddressForm({ name: '', phone: '', city: '', detail: '', tag: '家' });
+    setSubmitError('');
+  };
 
   const shipping = sourceItems.length ? 8 : 0;
   const subtotal = sourceItems.reduce((s, i) => s + i.price * i.count, 0);
@@ -656,11 +701,37 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
   return (
     <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
       <Card className="p-4">
-        <SectionTitle extra={<Button variant="ghost" onClick={() => go('/addresses')}>地址管理</Button>}>收货地址</SectionTitle>
-        <select aria-label="收货地址" className="w-full rounded-xl border border-slate-200 px-3 py-2" value={selectedAddress} onChange={(e) => setSelectedAddress(e.target.value)}>
-          <option value="">请选择地址</option>
-          {addresses.map((a) => <option key={a.id} value={a.id}>{a.name} / {a.city} / {a.detail}</option>)}
-        </select>
+        <SectionTitle extra={<Button size="sm" variant="ghost" onClick={() => go('/addresses')}>地址管理</Button>}>收货地址</SectionTitle>
+        {!activeAddresses.length ? <EmptyState title="暂无地址" desc="请先新增收货地址" /> : null}
+        <div className="space-y-2">
+          {activeAddresses.map((a) => (
+            <button
+              key={a.id}
+              className={`w-full rounded-2xl border p-3 text-left transition ${selectedAddress === a.id ? 'border-[var(--color-brand)] bg-[var(--color-brand-soft)]' : 'border-slate-100 bg-slate-50'}`}
+              onClick={() => setSelectedAddress(a.id)}
+            >
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-slate-800">{a.name}</p>
+                {a.isDefault ? <Tag tone="success">默认</Tag> : null}
+              </div>
+              <p className="mt-1 text-sm text-slate-600">{a.phone}</p>
+              <p className="mt-1 text-xs text-slate-500">{a.city} {a.detail}</p>
+            </button>
+          ))}
+        </div>
+        <div className="mt-3 grid gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-3 text-sm md:grid-cols-2">
+          <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="收货人" value={addressForm.name} onChange={(e) => setAddressForm((p) => ({ ...p, name: e.target.value }))} />
+          <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="手机号" value={addressForm.phone} onChange={(e) => setAddressForm((p) => ({ ...p, phone: e.target.value }))} />
+          <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="城市（如 上海 浦东）" value={addressForm.city} onChange={(e) => setAddressForm((p) => ({ ...p, city: e.target.value }))} />
+          <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="详细地址（门牌号）" value={addressForm.detail} onChange={(e) => setAddressForm((p) => ({ ...p, detail: e.target.value }))} />
+          <div className="flex gap-2 md:col-span-2">
+            {['家', '公司', '学校'].map((tag) => (
+              <Button key={tag} size="sm" variant={addressForm.tag === tag ? 'primary' : 'secondary'} onClick={() => setAddressForm((p) => ({ ...p, tag }))}>{tag}</Button>
+            ))}
+            <Button size="sm" className="ml-auto" onClick={saveAddress}>新增地址</Button>
+          </div>
+        </div>
+        {selectedAddressInfo ? <p className="mt-2 text-xs text-slate-500">当前配送：{selectedAddressInfo.city} {selectedAddressInfo.detail}</p> : null}
         {!selectedAddress ? <p className="mt-2 text-xs text-rose-500">未选择地址将无法提交订单</p> : null}
       </Card>
 
@@ -698,7 +769,7 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
 
       <Card className="p-4">
         <SectionTitle>支付方式</SectionTitle>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {[
             ['alipay', '支付宝'],
             ['wechat', '微信支付'],
@@ -799,9 +870,80 @@ function FavoritesPage({ go, products }: { go: (x: string) => void; products: an
   return <main className="mx-auto max-w-6xl p-3 md:p-4"><Card className="p-4"><SectionTitle extra={<Button variant="ghost" onClick={() => go('/me')}>返回</Button>}>我的收藏</SectionTitle>{!list.length ? <EmptyState title="暂无收藏商品" /> : <div className="grid grid-cols-2 gap-3 md:grid-cols-4">{list.map((p) => <button key={p.id} onClick={() => go(`/product/${p.id}`)}><ProductCard title={p.title} price={p.price} image={p.image} tags={p.tags} rating={p.rating} soldCount={p.soldCount} originPrice={p.originPrice} /></button>)}</div>}</Card></main>;
 }
 
-function AddressesPage() {
+function AddressesPage({ go }: { go: (x: string) => void }) {
   const { data: addresses = [] } = useAddressesQuery();
-  return <main className="mx-auto max-w-6xl p-3 md:p-4"><Card className="p-4"><SectionTitle>收货地址管理</SectionTitle><div className="space-y-3">{addresses.map((a) => <div key={a.id} className="rounded-2xl border border-slate-100 p-3 text-sm"><p className="font-medium">{a.name} {a.phone} {a.isDefault ? <Tag tone="success">默认</Tag> : null}</p><p className="mt-1 text-slate-500">{a.city} {a.detail}</p></div>)}</div></Card></main>;
+  const [tab, setTab] = useState<'all' | 'default'>('all');
+  const [keyword, setKeyword] = useState('');
+  const [draft, setDraft] = useState({ name: '', phone: '', city: '', detail: '' });
+  const [localAdds, setLocalAdds] = useState<Address[]>([]);
+
+  useEffect(() => {
+    if (!addresses.length) return;
+    setLocalAdds((prev) => (prev.length ? prev : addresses));
+  }, [addresses]);
+
+  const merged = localAdds.length ? localAdds : addresses;
+  const list = merged.filter((a) => {
+    const hitTab = tab === 'all' || a.isDefault;
+    const hitKeyword = !keyword.trim() || `${a.name} ${a.phone} ${a.city} ${a.detail}`.includes(keyword.trim());
+    return hitTab && hitKeyword;
+  });
+
+  const addAddress = () => {
+    if (!draft.name.trim() || !draft.phone.trim() || !draft.city.trim() || !draft.detail.trim()) return;
+    const next: Address = {
+      id: `addr-${Date.now()}`,
+      name: draft.name.trim(),
+      phone: draft.phone.trim(),
+      city: draft.city.trim(),
+      detail: draft.detail.trim(),
+      isDefault: merged.length === 0
+    };
+    setLocalAdds((prev) => [next, ...prev]);
+    setDraft({ name: '', phone: '', city: '', detail: '' });
+  };
+
+  const setAsDefault = (id: string) => {
+    setLocalAdds((prev) => prev.map((a) => ({ ...a, isDefault: a.id === id })));
+  };
+
+  return (
+    <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
+      <Card className="p-4">
+        <SectionTitle extra={<Button size="sm" variant="ghost" onClick={() => go('/checkout')}>返回结算</Button>}>收货地址管理</SectionTitle>
+        <input aria-label="搜索地址" className="mb-3 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm" placeholder="搜索收货人/手机号/地址" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+        <div className="mb-3 flex gap-2">
+          <Button size="sm" variant={tab === 'all' ? 'primary' : 'secondary'} onClick={() => setTab('all')}>全部地址</Button>
+          <Button size="sm" variant={tab === 'default' ? 'primary' : 'secondary'} onClick={() => setTab('default')}>仅看默认</Button>
+        </div>
+        {!list.length ? <EmptyState title="暂无匹配地址" desc="可新增地址或调整筛选条件" /> : null}
+        <div className="space-y-3">
+          {list.map((a) => (
+            <div key={a.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-3 text-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-semibold text-slate-800">{a.name}</p>
+                <p className="text-slate-500">{a.phone}</p>
+                {a.isDefault ? <Tag tone="success">默认</Tag> : null}
+                {!a.isDefault ? <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setAsDefault(a.id)}>设为默认</Button> : null}
+              </div>
+              <p className="mt-2 text-xs text-slate-500">{a.city} {a.detail}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <SectionTitle>新增收货地址</SectionTitle>
+        <div className="grid gap-2 md:grid-cols-2">
+          <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="收货人" value={draft.name} onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))} />
+          <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="手机号" value={draft.phone} onChange={(e) => setDraft((p) => ({ ...p, phone: e.target.value }))} />
+          <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="省市区" value={draft.city} onChange={(e) => setDraft((p) => ({ ...p, city: e.target.value }))} />
+          <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="街道门牌" value={draft.detail} onChange={(e) => setDraft((p) => ({ ...p, detail: e.target.value }))} />
+        </div>
+        <Button className="mt-3" onClick={addAddress}>保存地址</Button>
+      </Card>
+    </main>
+  );
 }
 
 function NotificationsPage() {
