@@ -68,7 +68,7 @@ export function ProductCard({
           </span>
         ))}
       </div>
-      <h3 className="mt-2 line-clamp-2 text-sm font-medium text-slate-800">{title}</h3>
+      <h3 className="mt-2 min-h-[2.5rem] line-clamp-2 text-sm font-medium text-slate-800">{title}</h3>
       <div className="mt-1 min-h-4 flex items-center gap-2 text-xs text-slate-500">
         {rating ? <span>⭐ {rating.toFixed(1)}</span> : <span className="opacity-0">占位</span>}
         {soldCount ? <span>已售 {soldCount}</span> : null}

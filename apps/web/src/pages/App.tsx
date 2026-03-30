@@ -220,55 +220,39 @@ export default function App() {
         </Card>
 
         <Card className="p-4">
-          <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr]">
-            <div className="rounded-2xl bg-slate-50 p-3">
-              <p className="text-xs text-slate-500">站内快讯</p>
-              <p className="mt-1 text-sm font-medium">{quickFeeds[bannerIndex % quickFeeds.length]}</p>
-              <p className="mt-2 text-xs text-slate-500">今日下单转化率 +12.8% · 客单价 ¥268</p>
-            </div>
-            {(home?.newcomer || []).slice(0, 1).map((x) => (
-              <div key={x.id} className="rounded-2xl bg-[var(--color-brand-soft)] p-3">
-                <p className="text-xs text-slate-500">新人权益</p>
-                <p className="mt-1 text-sm font-semibold">{x.title}</p>
-                <p className="text-xs text-slate-500">{x.perk}</p>
-              </div>
-            ))}
-            <div className="rounded-2xl bg-slate-900 p-3 text-white">
-              <p className="text-xs text-slate-300">会员专享</p>
-              <p className="mt-1 text-sm font-semibold">PLUS 会员 95 折 + 极速退款</p>
-              <Button size="sm" className="mt-2">立即开通</Button>
+          <div className="rounded-2xl bg-slate-50 p-3">
+            <p className="text-xs text-slate-500">消息轮播</p>
+            <p className="mt-1 text-sm font-medium">📣 站内快讯：{quickFeeds[bannerIndex % quickFeeds.length]}</p>
+            <p className="mt-1 text-sm text-slate-700">🎁 新人权益：{(home?.newcomer || [])[bannerIndex % Math.max((home?.newcomer || []).length, 1)]?.title || '新人礼包'} · {(home?.newcomer || [])[bannerIndex % Math.max((home?.newcomer || []).length, 1)]?.perk || '注册领券包'}</p>
+            <p className="mt-1 text-sm text-slate-700">💎 会员专享：PLUS 会员 95 折 + 极速退款</p>
+            <div className="mt-2 flex gap-1">
+              {Array.from({ length: 3 }).map((_, i) => <span key={i} className={`h-1.5 w-6 rounded-full ${i === bannerIndex % 3 ? 'bg-[var(--color-brand)]' : 'bg-slate-200'}`} />)}
             </div>
           </div>
         </Card>
 
-        <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
-          <Card className="p-4">
-            <SectionTitle>活动专区</SectionTitle>
-            <div className="grid gap-2 md:grid-cols-3">
+        <Card className="p-4">
+          <SectionTitle>活动专区</SectionTitle>
+          <div className="overflow-x-auto">
+            <div className="grid min-w-[720px] grid-flow-col auto-cols-[20%] gap-2">
               {(home?.activities || []).map((x) => (
-                <ActivityCard key={x.id} id={x.id} title={x.title} desc={x.desc} badge={x.badge} />
+                <button key={x.id} className="rounded-2xl bg-[var(--color-brand-soft)] p-2 text-center">
+                  <p className="text-xs font-semibold text-[var(--color-brand)]">{x.badge}</p>
+                  <p className="mt-1 text-xs font-medium text-slate-700 line-clamp-2">{x.title}</p>
+                </button>
               ))}
             </div>
-          </Card>
-          <Card className="p-4">
-            <SectionTitle>热门榜单</SectionTitle>
-            <ul className="space-y-2 text-sm">
-              {(home?.hotRank || []).map((x, i) => (
-                <li key={x.id} className="flex items-center justify-between">
-                  <span>#{i + 1} {x.name}</span>
-                  <span className="text-xs text-orange-600">{x.score}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-        </div>
+          </div>
+        </Card>
 
         <Card className="p-4">
           <SectionTitle>分类宫格</SectionTitle>
-          <div className="grid grid-cols-4 gap-2 md:grid-cols-8">
-            {categories.map((x) => (
-              <div key={x} className="rounded-2xl bg-slate-50 py-3 text-center text-xs transition hover:bg-slate-100 md:text-sm">{x}</div>
-            ))}
+          <div className="overflow-x-auto">
+            <div className="flex min-w-max gap-2">
+              {categories.map((x) => (
+                <button key={x} className="whitespace-nowrap rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-200">{x}</button>
+              ))}
+            </div>
           </div>
         </Card>
 
@@ -287,16 +271,19 @@ export default function App() {
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">排序</span>
-              <select
-                aria-label="智能排序"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as (typeof sortOptions)[number]['value'])}
-                className="h-9 flex-1 rounded-xl border border-slate-200 px-3 py-1 text-sm md:ml-auto md:max-w-[220px]"
-              >
-                {sortOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-              </select>
+            <div className="overflow-x-auto">
+              <div className="flex min-w-max items-center gap-2">
+                <span className="text-xs text-slate-500">排序</span>
+                {sortOptions.map((s) => (
+                  <button
+                    key={s.value}
+                    className={`whitespace-nowrap rounded-full px-3 py-1 text-xs ${sortBy === s.value ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`}
+                    onClick={() => setSortBy(s.value)}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           {productsLoading || productListLoading ? (
@@ -919,7 +906,7 @@ function MePage({ go }: { go: (x: string) => void }) {
       <Card className="p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3"><img src="https://picsum.photos/seed/avatar/120/120" className="h-14 w-14 rounded-full" /><div><p className="font-semibold">{profile.nickname}</p><p className="text-xs text-slate-500">{profile.phone} · PLUS 会员 · 成长值 3820</p></div></div>
-          <Button size="sm" variant={editing ? 'primary' : 'ghost'} className={editing ? '' : 'border border-slate-200 bg-white'} onClick={() => setEditing((x) => !x)}>{editing ? '完成编辑' : '编辑资料'}</Button>
+          <Button size="sm" variant={editing ? 'primary' : 'ghost'} className={`${editing ? '' : 'border border-slate-200 bg-white'} whitespace-nowrap`} onClick={() => setEditing((x) => !x)}>{editing ? '完成编辑' : '编辑资料'}</Button>
         </div>
         {editing ? <div className="mt-3 grid gap-2 text-sm md:grid-cols-2"><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.nickname} onChange={(e) => setProfile((p) => ({ ...p, nickname: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2 md:col-span-2" value={profile.bio} onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))} /></div> : <p className="mt-2 text-xs text-slate-500">{profile.bio}</p>}
       </Card>
@@ -934,7 +921,23 @@ function MePage({ go }: { go: (x: string) => void }) {
       </Card>
       <Card className="p-4">
         <SectionTitle>服务中心</SectionTitle>
-        <div className="grid grid-cols-3 gap-2 text-center text-sm md:grid-cols-6">{serviceEntries.map((name) => <button key={name} className="rounded-xl bg-slate-50 py-3">{name}</button>)}</div>
+        <div className="grid grid-cols-3 gap-2 text-center text-sm md:grid-cols-6">
+          {serviceEntries.map((name) => (
+            <button
+              key={name}
+              className="rounded-xl bg-slate-50 py-3"
+              onClick={() => {
+                if (name === '售后进度' || name === '退款管理') return go('/orders');
+                if (name === '在线客服') return go('/notifications');
+                if (name === '隐私设置') return go('/me');
+                if (name === '会员权益') return go('/');
+                if (name === '发票助手') return go('/checkout');
+              }}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
       </Card>
       <Card className="grid grid-cols-2 gap-2 p-4 md:grid-cols-4">{[
         ['我的收藏', '/favorites'],
