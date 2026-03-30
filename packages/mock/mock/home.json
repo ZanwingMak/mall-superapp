@@ -1,20 +1,32 @@
 {
   "banners": [
     {"id": "b1", "title": "春季焕新节", "subtitle": "每满299减50", "image": "https://picsum.photos/seed/banner1/1200/420"},
-    {"id": "b2", "title": "数码尖货周", "subtitle": "爆款低至5折", "image": "https://picsum.photos/seed/banner2/1200/420"}
+    {"id": "b2", "title": "数码尖货周", "subtitle": "爆款低至5折", "image": "https://picsum.photos/seed/banner2/1200/420"},
+    {"id": "b3", "title": "居家生活季", "subtitle": "家清家纺限时直降", "image": "https://picsum.photos/seed/banner3/1200/420"},
+    {"id": "b4", "title": "食品生鲜日", "subtitle": "满99减20，次日达", "image": "https://picsum.photos/seed/banner4/1200/420"},
+    {"id": "b5", "title": "运动户外周末场", "subtitle": "跑步健身装备7折起", "image": "https://picsum.photos/seed/banner5/1200/420"}
   ],
   "activities": [
     {"id": "ac1", "title": "限时秒杀", "desc": "每日10点 / 20点两场", "badge": "HOT"},
     {"id": "ac2", "title": "品牌会员日", "desc": "满599享12期免息", "badge": "NEW"},
-    {"id": "ac3", "title": "9.9包邮专区", "desc": "新人专享优选", "badge": "省"}
+    {"id": "ac3", "title": "9.9包邮专区", "desc": "新人专享优选", "badge": "省"},
+    {"id": "ac4", "title": "超级补贴", "desc": "官方补贴至高减300", "badge": "补"},
+    {"id": "ac5", "title": "以旧换新", "desc": "手机家电换新额外返现", "badge": "换"},
+    {"id": "ac6", "title": "跨店满减", "desc": "每满200减30", "badge": "券"}
   ],
   "hotRank": [
     {"id": "h1", "name": "蓝牙降噪耳机", "score": "热度98%"},
     {"id": "h2", "name": "Air Flex 运动鞋", "score": "热度96%"},
-    {"id": "h3", "name": "智能保温杯", "score": "热度93%"}
+    {"id": "h3", "name": "智能保温杯", "score": "热度93%"},
+    {"id": "h4", "name": "磁吸充电宝", "score": "热度91%"},
+    {"id": "h5", "name": "轻食坚果礼盒", "score": "热度90%"},
+    {"id": "h6", "name": "家用恒温电热壶", "score": "热度89%"},
+    {"id": "h7", "name": "速干运动短袖", "score": "热度87%"},
+    {"id": "h8", "name": "便携咖啡杯", "score": "热度85%"}
   ],
   "newcomer": [
     {"id": "n1", "title": "新人礼包", "perk": "88元券包"},
-    {"id": "n2", "title": "首单包邮", "perk": "无门槛"}
+    {"id": "n2", "title": "首单包邮", "perk": "无门槛"},
+    {"id": "n3", "title": "新人0元抽", "perk": "每日3次机会"}
   ]
 }

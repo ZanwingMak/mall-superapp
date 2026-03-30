@@ -108,10 +108,26 @@ export interface CampaignDetail {
 
 const fallback = {
   home: {
-    banners: [{ id: 'b1', title: '春季上新', image: 'https://picsum.photos/seed/banner1/1200/420', subtitle: '满299减50' }],
-    activities: [{ id: 'a1', title: '限时秒杀', desc: '每日10点开抢', badge: 'HOT' }],
-    hotRank: [{ id: 'h1', name: '蓝牙降噪耳机', score: '热度 98%' }],
-    newcomer: [{ id: 'n1', title: '新人礼包', perk: '注册领88元券包' }]
+    banners: [
+      { id: 'b1', title: '春季上新', image: 'https://picsum.photos/seed/banner1/1200/420', subtitle: '满299减50' },
+      { id: 'b2', title: '数码尖货周', image: 'https://picsum.photos/seed/banner2/1200/420', subtitle: '爆款低至5折' },
+      { id: 'b3', title: '居家生活季', image: 'https://picsum.photos/seed/banner3/1200/420', subtitle: '家清家纺限时直降' }
+    ],
+    activities: [
+      { id: 'ac1', title: '限时秒杀', desc: '每日10点开抢', badge: 'HOT' },
+      { id: 'ac2', title: '品牌会员日', desc: '满599享12期免息', badge: 'NEW' },
+      { id: 'ac3', title: '9.9包邮专区', desc: '新人专享优选', badge: '省' }
+    ],
+    hotRank: [
+      { id: 'h1', name: '蓝牙降噪耳机', score: '热度 98%' },
+      { id: 'h2', name: 'Air Flex 运动鞋', score: '热度 96%' },
+      { id: 'h3', name: '智能保温杯', score: '热度 93%' },
+      { id: 'h4', name: '磁吸充电宝', score: '热度 91%' }
+    ],
+    newcomer: [
+      { id: 'n1', title: '新人礼包', perk: '注册领88元券包' },
+      { id: 'n2', title: '首单包邮', perk: '0门槛下单' }
+    ]
   } as HomePayload,
   products: [
     {
@@ -200,8 +216,13 @@ const fallback = {
     }
   ] as Product[],
   reviews: [
-    { id: 'r1', user: '星***7', rating: 5, content: '穿着很舒服，尺码标准。', createdAt: '2026-03-28' }
-  ] as Review[],
+    { id: 'r1', user: '星***7', rating: 5, content: '穿着很舒服，尺码标准。', createdAt: '2026-03-28' },
+    { id: 'r2', user: '海***2', rating: 4, content: '外观好看，做工在线。', createdAt: '2026-03-27', appendComment: '用了几天依然满意。' },
+    { id: 'r3', user: '风***9', rating: 5, content: '物流很快，包装完整。', createdAt: '2026-03-26' },
+    { id: 'r4', user: '木***1', rating: 4, content: '性价比不错，值得入手。', createdAt: '2026-03-25' },
+    { id: 'r5', user: '雨***5', rating: 5, content: '家里人都说好，回购。', createdAt: '2026-03-24' },
+    { id: 'r6', user: '晨***3', rating: 3, content: '整体还行，细节可优化。', createdAt: '2026-03-23' }
+  ] as Review[], 
   coupons: [{ id: 'c1', title: '满300减30', discount: 30, minSpend: 300, expireAt: '2026-04-30' }] as Coupon[],
   addresses: [{ id: 'a1', name: '张三', phone: '138', city: '上海', detail: '张江路', isDefault: true }] as Address[],
   orders: [
@@ -219,7 +240,7 @@ const fallback = {
     { id: 'p1', viewedAt: '2026-03-29 00:58', source: 'search' }
   ] as FootprintItem[],
   campaign: {
-    id: 'a1',
+    id: 'ac1',
     title: '限时秒杀',
     period: '每日 10:00 / 20:00',
     desc: '爆款商品限时直降，库存有限。',
