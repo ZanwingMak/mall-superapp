@@ -1059,7 +1059,7 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
   return (
     <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
       <Card className="p-4">
-        <SectionTitle extra={<div className="flex gap-2"><Button size="sm" variant="ghost" onClick={() => go('/me')}>返回我的</Button><Button size="sm" variant="ghost" onClick={() => go('/checkout')}>返回结算</Button></div>}>收货地址管理</SectionTitle>
+        <SectionTitle extra={<Button size="sm" variant="ghost" onClick={() => go('/me')}>返回我的</Button>}>收货地址管理</SectionTitle>
         <input aria-label="搜索地址" className="mb-3 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm" placeholder="搜索收货人/手机号/地址" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
         <div className="mb-3 flex gap-2">
           <Button size="sm" variant={tab === 'all' ? 'primary' : 'secondary'} onClick={() => setTab('all')}>全部地址</Button>
@@ -1165,7 +1165,7 @@ function FootprintsPage({ go, products }: { go: (x: string) => void; products: a
   return (
     <main className="mx-auto max-w-6xl p-3 md:p-4">
       <Card className="p-4">
-        <SectionTitle extra={<Button size="sm" variant="ghost" onClick={() => go('/me')}>返回</Button>}>浏览足迹</SectionTitle>
+        <SectionTitle extra={<Button size="sm" variant="ghost" onClick={() => go('/me')}>返回我的</Button>}>浏览足迹</SectionTitle>
         {!list.length ? <EmptyState title="暂无足迹" /> : (
           <div className="space-y-2">
             {list.map((x) => (
