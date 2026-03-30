@@ -165,9 +165,15 @@ export default function App() {
               className="h-10 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-[var(--color-brand)] focus:bg-white"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setKeyword((v) => v.trim());
+                  go('/search');
+                }
+              }}
               placeholder="搜索商品、品牌、品类"
             />
-            <Button size="sm" onClick={() => { setKeyword((v) => v.trim()); setToast('已按关键词筛选'); }}>搜索</Button>
+            <Button size="sm" onClick={() => { setKeyword((v) => v.trim()); go('/search'); }}>搜索</Button>
           </div>
         ) : null}
         <div className="ml-auto hidden items-center gap-1.5 md:flex md:gap-2">
@@ -201,6 +207,7 @@ export default function App() {
   if (path === '/notifications') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><NotificationsPage go={go} /></PageWrap>;
   if (path === '/footprints') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><FootprintsPage go={go} products={products} /></PageWrap>;
   if (path === '/me') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><MePage go={go} /></PageWrap>;
+  if (path === '/search') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><SearchPage go={go} products={products} keyword={keyword} /></PageWrap>;
 
   return (
     <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}>
@@ -1085,6 +1092,64 @@ function FavoritesPage({ go, products }: { go: (x: string) => void; products: an
   const { favorites } = useCartStore();
   const list = products.filter((p) => favorites.includes(p.id));
   return <main className="mx-auto max-w-6xl p-3 md:p-4"><Card className="p-4"><SectionTitle extra={<Button variant="ghost" onClick={() => go('/me')}>返回</Button>}>我的收藏</SectionTitle>{!list.length ? <EmptyState title="暂无收藏商品" /> : <div className="grid grid-cols-2 gap-3 md:grid-cols-4">{list.map((p) => <button key={p.id} onClick={() => go(`/product/${p.id}`)}><ProductCard title={p.title} price={p.price} image={p.image} tags={p.tags} rating={p.rating} soldCount={p.soldCount} originPrice={p.originPrice} /></button>)}</div>}</Card></main>;
+}
+
+function SearchPage({ go, products, keyword }: { go: (x: string) => void; products: any[]; keyword: string }) {
+  const [sort, setSort] = useState<'smart' | 'sold' | 'price'>('smart');
+  const [showFilter, setShowFilter] = useState(false);
+  const [brandOnly, setBrandOnly] = useState(false);
+  const [priceRange, setPriceRange] = useState<'all' | '0-50' | '50-100' | '100+'>('all');
+
+  const list = useMemo(() => {
+    let data = filterAndSortProducts(products, keyword, 'all', sort === 'price' ? 'price-asc' : sort === 'sold' ? 'sold' : 'smart');
+    if (brandOnly) data = data.filter((x) => /meiji|nova|air/i.test(x.title || ''));
+    if (priceRange === '0-50') data = data.filter((x) => x.price <= 50);
+    if (priceRange === '50-100') data = data.filter((x) => x.price > 50 && x.price <= 100);
+    if (priceRange === '100+') data = data.filter((x) => x.price > 100);
+    return data;
+  }, [products, keyword, sort, brandOnly, priceRange]);
+
+  return (
+    <main className="mx-auto max-w-6xl space-y-3 p-3 pb-20 md:p-4">
+      <Card className="p-3 md:hidden">
+        <div className="flex items-center gap-2 text-sm">
+          {['综合', '销量', '价格', '品牌'].map((x) => (
+            <button key={x} className={`rounded-full px-3 py-1 ${((x === '综合' && sort === 'smart') || (x === '销量' && sort === 'sold') || (x === '价格' && sort === 'price') || (x === '品牌' && brandOnly)) ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`} onClick={() => {
+              if (x === '综合') setSort('smart');
+              if (x === '销量') setSort('sold');
+              if (x === '价格') setSort('price');
+              if (x === '品牌') setBrandOnly((v) => !v);
+            }}>{x}</button>
+          ))}
+          <Button size="sm" variant="secondary" className="ml-auto" onClick={() => setShowFilter(true)}>筛选</Button>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+        {list.map((p) => (
+          <button key={p.id} className="text-left" onClick={() => go(`/product/${p.id}`)}>
+            <ProductCard title={p.title} price={p.price} image={p.image} tags={p.tags} rating={p.rating} soldCount={p.soldCount} originPrice={p.originPrice} />
+          </button>
+        ))}
+      </div>
+
+      {showFilter ? (
+        <div className="fixed inset-0 z-30 flex bg-black/30">
+          <div className="w-28 bg-slate-100 p-3 text-sm text-slate-600">筛选项</div>
+          <div className="flex-1 bg-white p-4">
+            <p className="text-sm font-semibold">价格区间</p>
+            <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+              {['all', '0-50', '50-100', '100+'].map((r) => <button key={r} className={`rounded-xl px-3 py-2 ${priceRange === r ? 'bg-slate-900 text-white' : 'bg-slate-100'}`} onClick={() => setPriceRange(r as any)}>{r === 'all' ? '全部' : r}</button>)}
+            </div>
+            <div className="fixed inset-x-0 bottom-0 grid grid-cols-2 border-t bg-white">
+              <button className="py-3 text-sm" onClick={() => { setPriceRange('all'); setBrandOnly(false); }}>重置</button>
+              <button className="bg-rose-500 py-3 text-sm text-white" onClick={() => setShowFilter(false)}>确定（{list.length}件）</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </main>
+  );
 }
 
 function AddressesPage({ go }: { go: (x: string) => void }) {
