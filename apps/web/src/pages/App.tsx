@@ -723,6 +723,7 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
   const [localAddresses, setLocalAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState('');
   const [addressForm, setAddressForm] = useState({ name: '', phone: '', city: '', detail: '', tag: '家' });
+  const [showCheckoutAddressForm, setShowCheckoutAddressForm] = useState(false);
   const [remark, setRemark] = useState('');
   const [needInvoice, setNeedInvoice] = useState(false);
   const [invoiceType, setInvoiceType] = useState<'personal' | 'company'>('personal');
@@ -762,6 +763,7 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
     });
     setSelectedAddress(next.id);
     setAddressForm({ name: '', phone: '', city: '', detail: '', tag: '家' });
+    setShowCheckoutAddressForm(false);
     setSubmitError('');
   };
 
@@ -817,21 +819,32 @@ function CheckoutPage({ go }: { go: (x: string) => void }) {
             </button>
           ))}
         </div>
-        <div className="mt-3 grid gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-3 text-sm md:grid-cols-2">
-          <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="收货人" value={addressForm.name} onChange={(e) => setAddressForm((p) => ({ ...p, name: e.target.value }))} />
-          <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="手机号" value={addressForm.phone} onChange={(e) => setAddressForm((p) => ({ ...p, phone: e.target.value }))} />
-          <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="城市（如 上海 浦东）" value={addressForm.city} onChange={(e) => setAddressForm((p) => ({ ...p, city: e.target.value }))} />
-          <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="详细地址（门牌号）" value={addressForm.detail} onChange={(e) => setAddressForm((p) => ({ ...p, detail: e.target.value }))} />
-          <div className="flex gap-2 md:col-span-2">
-            {['家', '公司', '学校'].map((tag) => (
-              <Button key={tag} size="sm" variant={addressForm.tag === tag ? 'primary' : 'secondary'} onClick={() => setAddressForm((p) => ({ ...p, tag }))}>{tag}</Button>
-            ))}
-            <Button size="sm" className="ml-auto" onClick={saveAddress}>新增地址</Button>
-          </div>
+        <div className="mt-3">
+          <Button size="sm" variant="secondary" onClick={() => setShowCheckoutAddressForm(true)}>+ 新增收货地址</Button>
         </div>
         {selectedAddressInfo ? <p className="mt-2 text-xs text-slate-500">当前配送：{selectedAddressInfo.city} {selectedAddressInfo.detail}</p> : null}
         {!selectedAddress ? <p className="mt-2 text-xs text-rose-500">未选择地址将无法提交订单</p> : null}
       </Card>
+
+      {showCheckoutAddressForm ? (
+        <div className="fixed inset-0 z-30 flex items-end bg-black/40 md:items-center md:justify-center">
+          <div className="w-full rounded-t-3xl bg-white p-4 md:max-w-2xl md:rounded-3xl">
+            <SectionTitle extra={<Button size="sm" variant="ghost" onClick={() => setShowCheckoutAddressForm(false)}>关闭</Button>}>新增收货地址</SectionTitle>
+            <div className="grid gap-2 text-sm md:grid-cols-2">
+              <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="收货人" value={addressForm.name} onChange={(e) => setAddressForm((p) => ({ ...p, name: e.target.value }))} />
+              <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="手机号" value={addressForm.phone} onChange={(e) => setAddressForm((p) => ({ ...p, phone: e.target.value }))} />
+              <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="城市（如 上海 浦东）" value={addressForm.city} onChange={(e) => setAddressForm((p) => ({ ...p, city: e.target.value }))} />
+              <input className="rounded-xl border border-slate-200 bg-white px-3 py-2" placeholder="详细地址（门牌号）" value={addressForm.detail} onChange={(e) => setAddressForm((p) => ({ ...p, detail: e.target.value }))} />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {['家', '公司', '学校'].map((tag) => (
+                <Button key={tag} size="sm" variant={addressForm.tag === tag ? 'primary' : 'secondary'} onClick={() => setAddressForm((p) => ({ ...p, tag }))}>{tag}</Button>
+              ))}
+              <Button size="sm" className="ml-auto" onClick={saveAddress}>保存地址</Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <Card className="p-4">
         <SectionTitle>商品清单</SectionTitle>
@@ -981,7 +994,7 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
   const { data: addresses = [] } = useAddressesQuery();
   const [tab, setTab] = useState<'all' | 'default'>('all');
   const [keyword, setKeyword] = useState('');
-  const [draft, setDraft] = useState({ name: '', phone: '', city: '', detail: '' });
+  const [draft, setDraft] = useState({ name: '', phone: '', city: '', detail: '', tag: '家', setDefault: false });
   const [localAdds, setLocalAdds] = useState<Address[]>([]);
   const [editingId, setEditingId] = useState('');
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -1001,27 +1014,27 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
   const saveAddress = () => {
     if (!draft.name.trim() || !draft.phone.trim() || !draft.city.trim() || !draft.detail.trim()) return;
     if (editingId) {
-      setLocalAdds((prev) => prev.map((a) => (a.id === editingId ? { ...a, name: draft.name.trim(), phone: draft.phone.trim(), city: draft.city.trim(), detail: draft.detail.trim() } : a)));
+      setLocalAdds((prev) => prev.map((a) => (a.id === editingId ? { ...a, name: `${draft.name.trim()} · ${draft.tag}`, phone: draft.phone.trim(), city: draft.city.trim(), detail: draft.detail.trim(), isDefault: draft.setDefault || a.isDefault } : (draft.setDefault ? { ...a, isDefault: false } : a))));
       setEditingId('');
     } else {
       const next: Address = {
         id: `addr-${Date.now()}`,
-        name: draft.name.trim(),
+        name: `${draft.name.trim()} · ${draft.tag}`,
         phone: draft.phone.trim(),
         city: draft.city.trim(),
         detail: draft.detail.trim(),
-        isDefault: merged.length === 0
+        isDefault: draft.setDefault || merged.length === 0
       };
       setLocalAdds((prev) => [next, ...prev]);
     }
-    setDraft({ name: '', phone: '', city: '', detail: '' });
+    setDraft({ name: '', phone: '', city: '', detail: '', tag: '家', setDefault: false });
     setShowAddressForm(false);
   };
 
   const startEdit = (a: Address) => {
     setEditingId(a.id);
     setShowAddressForm(true);
-    setDraft({ name: a.name, phone: a.phone, city: a.city, detail: a.detail });
+    setDraft({ name: a.name.replace(/ · (家|公司|学校)$/, ''), phone: a.phone, city: a.city, detail: a.detail, tag: / · (家|公司|学校)$/.test(a.name) ? (a.name.match(/ · (家|公司|学校)$/)?.[1] || '家') : '家', setDefault: a.isDefault });
   };
 
   const removeAddress = (id: string) => {
@@ -1032,7 +1045,7 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
     });
     if (editingId === id) {
       setEditingId('');
-      setDraft({ name: '', phone: '', city: '', detail: '' });
+      setDraft({ name: '', phone: '', city: '', detail: '', tag: '家', setDefault: false });
     }
   };
 
@@ -1078,10 +1091,15 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
               <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="手机号" value={draft.phone} onChange={(e) => setDraft((p) => ({ ...p, phone: e.target.value }))} />
               <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="省市区" value={draft.city} onChange={(e) => setDraft((p) => ({ ...p, city: e.target.value }))} />
               <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="街道门牌" value={draft.detail} onChange={(e) => setDraft((p) => ({ ...p, detail: e.target.value }))} />
+              <div className="md:col-span-2 flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 p-2">
+                <span className="text-xs text-slate-500">地址标签</span>
+                {['家', '公司', '学校'].map((tag) => <Button key={tag} size="sm" variant={draft.tag === tag ? 'primary' : 'secondary'} onClick={() => setDraft((p) => ({ ...p, tag }))}>{tag}</Button>)}
+                <label className="ml-auto flex items-center gap-1 text-xs text-slate-500"><input type="checkbox" checked={draft.setDefault} onChange={(e) => setDraft((p) => ({ ...p, setDefault: e.target.checked }))} /> 设为默认</label>
+              </div>
             </div>
             <div className="mt-3 flex gap-2">
               <Button onClick={saveAddress}>{editingId ? '保存修改' : '保存地址'}</Button>
-              <Button variant="secondary" onClick={() => { setEditingId(''); setDraft({ name: '', phone: '', city: '', detail: '' }); setShowAddressForm(false); }}>取消</Button>
+              <Button variant="secondary" onClick={() => { setEditingId(''); setDraft({ name: '', phone: '', city: '', detail: '', tag: '家', setDefault: false }); setShowAddressForm(false); }}>取消</Button>
             </div>
           </>
         ) : <p className="text-sm text-slate-500">点击右上角“新增地址”开始填写。</p>}
