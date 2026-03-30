@@ -204,7 +204,14 @@ const fallback = {
   ] as Review[],
   coupons: [{ id: 'c1', title: '满300减30', discount: 30, minSpend: 300, expireAt: '2026-04-30' }] as Coupon[],
   addresses: [{ id: 'a1', name: '张三', phone: '138', city: '上海', detail: '张江路', isDefault: true }] as Address[],
-  orders: [{ id: 'o1', amount: 399, status: 'paid', createdAt: '2026-03-29', itemCount: 1 }] as Order[],
+  orders: [
+    { id: 'o1001', amount: 399, status: 'pending', createdAt: '2026-03-29 10:21', itemCount: 1 },
+    { id: 'o1002', amount: 1099, status: 'shipping', createdAt: '2026-03-29 09:08', itemCount: 2 },
+    { id: 'o1003', amount: 268, status: 'done', createdAt: '2026-03-28 21:16', itemCount: 3 },
+    { id: 'o1004', amount: 159, status: 'out_of_stock', createdAt: '2026-03-28 17:45', itemCount: 1 },
+    { id: 'o1005', amount: 520, status: 'cancelled', createdAt: '2026-03-27 14:30', itemCount: 2 },
+    { id: 'o1006', amount: 239, status: 'refund_processing', createdAt: '2026-03-27 11:02', itemCount: 1 }
+  ] as Order[], 
   notifications: [
     { id: 'n1', title: '订单已发货', content: '您的订单已发货，预计明日送达。', type: 'logistics', createdAt: '2026-03-29 01:30', read: false }
   ] as NotificationItem[],

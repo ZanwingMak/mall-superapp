@@ -162,6 +162,7 @@ export default function App() {
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="搜索商品、品牌、品类"
         />
+        <Button size="sm" className="order-2 md:order-none" onClick={() => { setKeyword((v) => v.trim()); setToast('已按关键词筛选'); }}>搜索</Button>
         <div className="ml-auto hidden items-center gap-1.5 md:flex md:gap-2">
           <Button size="sm" variant="secondary" onClick={() => go('/notifications')}>
             消息{unreadCount ? `(${unreadCount})` : ''}
@@ -254,6 +255,8 @@ export default function App() {
             </ul>
           </Card>
         </div>
+
+        {compareProducts.length ? <ComparePanel products={compareProducts} onToggleCompare={toggleCompare} /> : null}
 
         <Card className="p-4">
           <SectionTitle>分类宫格</SectionTitle>
@@ -349,8 +352,6 @@ export default function App() {
             </>
           )}
         </Card>
-
-        {compareProducts.length ? <ComparePanel products={compareProducts} onToggleCompare={toggleCompare} /> : null}
 
         <button
           className="fixed bottom-24 right-4 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs shadow-[var(--shadow-sm)] md:bottom-8"
@@ -512,6 +513,7 @@ function ProductDetailPage({
 
   return (
     <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
+      <Button size="sm" variant="ghost" className="border border-slate-200 bg-white" onClick={() => window.history.length > 1 ? window.history.back() : go('/')}>← 返回</Button>
       <Card className="grid gap-4 p-4 md:grid-cols-2">
         <div>
           <img src={activeImage} alt={product.title} className="h-72 w-full rounded-2xl object-cover md:h-[420px]" />
@@ -875,7 +877,7 @@ function MePage({ go }: { go: (x: string) => void }) {
       <Card className="p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3"><img src="https://picsum.photos/seed/avatar/120/120" className="h-14 w-14 rounded-full" /><div><p className="font-semibold">{profile.nickname}</p><p className="text-xs text-slate-500">{profile.phone} · PLUS 会员 · 成长值 3820</p></div></div>
-          <Button size="sm" variant="secondary" onClick={() => setEditing((x) => !x)}>{editing ? '完成' : '编辑资料'}</Button>
+          <Button size="sm" variant={editing ? 'primary' : 'ghost'} className={editing ? '' : 'border border-slate-200 bg-white'} onClick={() => setEditing((x) => !x)}>{editing ? '完成编辑' : '编辑资料'}</Button>
         </div>
         {editing ? <div className="mt-3 grid gap-2 text-sm md:grid-cols-2"><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.nickname} onChange={(e) => setProfile((p) => ({ ...p, nickname: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2 md:col-span-2" value={profile.bio} onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))} /></div> : <p className="mt-2 text-xs text-slate-500">{profile.bio}</p>}
       </Card>
@@ -944,6 +946,7 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
   const [keyword, setKeyword] = useState('');
   const [draft, setDraft] = useState({ name: '', phone: '', city: '', detail: '' });
   const [localAdds, setLocalAdds] = useState<Address[]>([]);
+  const [editingId, setEditingId] = useState('');
 
   useEffect(() => {
     if (!addresses.length) return;
@@ -957,18 +960,40 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
     return hitTab && hitKeyword;
   });
 
-  const addAddress = () => {
+  const saveAddress = () => {
     if (!draft.name.trim() || !draft.phone.trim() || !draft.city.trim() || !draft.detail.trim()) return;
-    const next: Address = {
-      id: `addr-${Date.now()}`,
-      name: draft.name.trim(),
-      phone: draft.phone.trim(),
-      city: draft.city.trim(),
-      detail: draft.detail.trim(),
-      isDefault: merged.length === 0
-    };
-    setLocalAdds((prev) => [next, ...prev]);
+    if (editingId) {
+      setLocalAdds((prev) => prev.map((a) => (a.id === editingId ? { ...a, name: draft.name.trim(), phone: draft.phone.trim(), city: draft.city.trim(), detail: draft.detail.trim() } : a)));
+      setEditingId('');
+    } else {
+      const next: Address = {
+        id: `addr-${Date.now()}`,
+        name: draft.name.trim(),
+        phone: draft.phone.trim(),
+        city: draft.city.trim(),
+        detail: draft.detail.trim(),
+        isDefault: merged.length === 0
+      };
+      setLocalAdds((prev) => [next, ...prev]);
+    }
     setDraft({ name: '', phone: '', city: '', detail: '' });
+  };
+
+  const startEdit = (a: Address) => {
+    setEditingId(a.id);
+    setDraft({ name: a.name, phone: a.phone, city: a.city, detail: a.detail });
+  };
+
+  const removeAddress = (id: string) => {
+    setLocalAdds((prev) => {
+      const next = prev.filter((a) => a.id !== id);
+      if (next.length && !next.some((a) => a.isDefault)) next[0].isDefault = true;
+      return [...next];
+    });
+    if (editingId === id) {
+      setEditingId('');
+      setDraft({ name: '', phone: '', city: '', detail: '' });
+    }
   };
 
   const setAsDefault = (id: string) => {
@@ -995,20 +1020,27 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
                 {!a.isDefault ? <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setAsDefault(a.id)}>设为默认</Button> : null}
               </div>
               <p className="mt-2 text-xs text-slate-500">{a.city} {a.detail}</p>
+              <div className="mt-2 flex gap-2">
+                <Button size="sm" variant="ghost" onClick={() => startEdit(a)}>编辑</Button>
+                <Button size="sm" variant="ghost" onClick={() => removeAddress(a.id)}>删除</Button>
+              </div>
             </div>
           ))}
         </div>
       </Card>
 
       <Card className="p-4">
-        <SectionTitle>新增收货地址</SectionTitle>
+        <SectionTitle>{editingId ? '编辑收货地址' : '新增收货地址'}</SectionTitle>
         <div className="grid gap-2 md:grid-cols-2">
           <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="收货人" value={draft.name} onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))} />
           <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="手机号" value={draft.phone} onChange={(e) => setDraft((p) => ({ ...p, phone: e.target.value }))} />
           <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="省市区" value={draft.city} onChange={(e) => setDraft((p) => ({ ...p, city: e.target.value }))} />
           <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="街道门牌" value={draft.detail} onChange={(e) => setDraft((p) => ({ ...p, detail: e.target.value }))} />
         </div>
-        <Button className="mt-3" onClick={addAddress}>保存地址</Button>
+        <div className="mt-3 flex gap-2">
+          <Button onClick={saveAddress}>{editingId ? '保存修改' : '保存地址'}</Button>
+          {editingId ? <Button variant="secondary" onClick={() => { setEditingId(''); setDraft({ name: '', phone: '', city: '', detail: '' }); }}>取消编辑</Button> : null}
+        </div>
       </Card>
     </main>
   );
