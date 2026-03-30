@@ -198,7 +198,7 @@ export default function App() {
   if (path === '/orders') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><OrdersPage go={go} /></PageWrap>;
   if (path === '/favorites') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><FavoritesPage go={go} products={products} /></PageWrap>;
   if (path === '/addresses') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><AddressesPage go={go} /></PageWrap>;
-  if (path === '/notifications') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><NotificationsPage /></PageWrap>;
+  if (path === '/notifications') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><NotificationsPage go={go} /></PageWrap>;
   if (path === '/footprints') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><FootprintsPage go={go} products={products} /></PageWrap>;
   if (path === '/me') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><MePage go={go} /></PageWrap>;
 
@@ -668,7 +668,7 @@ function CartPage({ go }: { go: (x: string) => void }) {
   return (
     <main className="mx-auto max-w-6xl p-3 md:p-4">
       <Card className="p-4">
-        <SectionTitle>购物车</SectionTitle>
+        <SectionTitle extra={<Button size="sm" variant="ghost" onClick={() => go('/me')}>返回</Button>}>购物车</SectionTitle>
         {!items.length ? <EmptyState title="购物车空空如也" desc="去首页逛逛吧" /> : null}
         <div className="space-y-3">
           {items.map((i) => (
@@ -1056,7 +1056,7 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
   return (
     <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
       <Card className="p-4">
-        <SectionTitle extra={<Button size="sm" variant="ghost" onClick={() => go('/checkout')}>返回结算</Button>}>收货地址管理</SectionTitle>
+        <SectionTitle extra={<div className="flex gap-2"><Button size="sm" variant="ghost" onClick={() => go('/me')}>返回我的</Button><Button size="sm" variant="ghost" onClick={() => go('/checkout')}>返回结算</Button></div>}>收货地址管理</SectionTitle>
         <input aria-label="搜索地址" className="mb-3 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm" placeholder="搜索收货人/手机号/地址" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
         <div className="mb-3 flex gap-2">
           <Button size="sm" variant={tab === 'all' ? 'primary' : 'secondary'} onClick={() => setTab('all')}>全部地址</Button>
@@ -1108,7 +1108,7 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
   );
 }
 
-function NotificationsPage() {
+function NotificationsPage({ go }: { go: (x: string) => void }) {
   const { data: notifications = [], isError } = useNotificationsQuery();
   const [tab, setTab] = useState<'all' | 'unread'>('all');
   const [keyword, setKeyword] = useState('');
@@ -1125,7 +1125,7 @@ function NotificationsPage() {
   return (
     <main className="mx-auto max-w-6xl p-3 md:p-4">
       <Card className="p-4">
-        <SectionTitle>消息通知中心</SectionTitle>
+        <SectionTitle extra={<Button size="sm" variant="ghost" onClick={() => go('/me')}>返回</Button>}>消息通知中心</SectionTitle>
         <input aria-label="搜索消息" className="mb-3 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm" placeholder="搜索标题或内容" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
         <div className="mb-2 flex flex-wrap gap-2">
           <Button size="sm" variant={tab === 'all' ? 'primary' : 'secondary'} onClick={() => setTab('all')}>全部</Button>
@@ -1162,7 +1162,7 @@ function FootprintsPage({ go, products }: { go: (x: string) => void; products: a
   return (
     <main className="mx-auto max-w-6xl p-3 md:p-4">
       <Card className="p-4">
-        <SectionTitle>浏览足迹</SectionTitle>
+        <SectionTitle extra={<Button size="sm" variant="ghost" onClick={() => go('/me')}>返回</Button>}>浏览足迹</SectionTitle>
         {!list.length ? <EmptyState title="暂无足迹" /> : (
           <div className="space-y-2">
             {list.map((x) => (
