@@ -219,20 +219,39 @@ export default function App() {
           )}
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-4 md:hidden">
           <div className="rounded-2xl bg-slate-50 p-3">
             <p className="text-xs text-slate-500">消息轮播</p>
             <p className="mt-1 text-sm font-medium">📣 站内快讯：{quickFeeds[bannerIndex % quickFeeds.length]}</p>
             <p className="mt-1 text-sm text-slate-700">🎁 新人权益：{(home?.newcomer || [])[bannerIndex % Math.max((home?.newcomer || []).length, 1)]?.title || '新人礼包'} · {(home?.newcomer || [])[bannerIndex % Math.max((home?.newcomer || []).length, 1)]?.perk || '注册领券包'}</p>
             <p className="mt-1 text-sm text-slate-700">💎 会员专享：PLUS 会员 95 折 + 极速退款</p>
-            <div className="mt-2 flex gap-1">
-              {Array.from({ length: 3 }).map((_, i) => <span key={i} className={`h-1.5 w-6 rounded-full ${i === bannerIndex % 3 ? 'bg-[var(--color-brand)]' : 'bg-slate-200'}`} />)}
+          </div>
+        </Card>
+
+        <Card className="hidden p-4 md:block">
+          <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr]">
+            <div className="rounded-2xl bg-slate-50 p-3">
+              <p className="text-xs text-slate-500">站内快讯</p>
+              <p className="mt-1 text-sm font-medium">{quickFeeds[bannerIndex % quickFeeds.length]}</p>
+              <p className="mt-2 text-xs text-slate-500">今日下单转化率 +12.8% · 客单价 ¥268</p>
+            </div>
+            {(home?.newcomer || []).slice(0, 1).map((x) => (
+              <div key={x.id} className="rounded-2xl bg-[var(--color-brand-soft)] p-3">
+                <p className="text-xs text-slate-500">新人权益</p>
+                <p className="mt-1 text-sm font-semibold">{x.title}</p>
+                <p className="text-xs text-slate-500">{x.perk}</p>
+              </div>
+            ))}
+            <div className="rounded-2xl bg-slate-900 p-3 text-white">
+              <p className="text-xs text-slate-300">会员专享</p>
+              <p className="mt-1 text-sm font-semibold">PLUS 会员 95 折 + 极速退款</p>
+              <Button size="sm" className="mt-2">立即开通</Button>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4">
-          <SectionTitle>活动专区</SectionTitle>
+        <Card className="p-4 md:hidden">
+          <SectionTitle>活动入口</SectionTitle>
           <div className="overflow-x-auto">
             <div className="grid min-w-[720px] grid-flow-col auto-cols-[20%] gap-2">
               {(home?.activities || []).map((x) => (
@@ -245,14 +264,45 @@ export default function App() {
           </div>
         </Card>
 
-        <Card className="p-4">
-          <SectionTitle>分类宫格</SectionTitle>
+        <div className="hidden gap-4 md:grid md:grid-cols-[2fr_1fr]">
+          <Card className="p-4">
+            <SectionTitle>活动专区</SectionTitle>
+            <div className="grid gap-2 md:grid-cols-3">
+              {(home?.activities || []).map((x) => (
+                <ActivityCard key={x.id} id={x.id} title={x.title} desc={x.desc} badge={x.badge} />
+              ))}
+            </div>
+          </Card>
+          <Card className="p-4">
+            <SectionTitle>热门榜单</SectionTitle>
+            <ul className="space-y-2 text-sm">
+              {(home?.hotRank || []).map((x, i) => (
+                <li key={x.id} className="flex items-center justify-between">
+                  <span>#{i + 1} {x.name}</span>
+                  <span className="text-xs text-orange-600">{x.score}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </div>
+
+        <Card className="p-4 md:hidden">
+          <SectionTitle>分类导航</SectionTitle>
           <div className="overflow-x-auto">
             <div className="flex min-w-max gap-2">
               {categories.map((x) => (
                 <button key={x} className="whitespace-nowrap rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-200">{x}</button>
               ))}
             </div>
+          </div>
+        </Card>
+
+        <Card className="hidden p-4 md:block">
+          <SectionTitle>分类宫格</SectionTitle>
+          <div className="grid grid-cols-4 gap-2 md:grid-cols-8">
+            {categories.map((x) => (
+              <div key={x} className="rounded-2xl bg-slate-50 py-3 text-center text-xs transition hover:bg-slate-100 md:text-sm">{x}</div>
+            ))}
           </div>
         </Card>
 
@@ -271,7 +321,7 @@ export default function App() {
                 </button>
               ))}
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto md:hidden">
               <div className="flex min-w-max items-center gap-2">
                 <span className="text-xs text-slate-500">排序</span>
                 {sortOptions.map((s) => (
@@ -284,6 +334,17 @@ export default function App() {
                   </button>
                 ))}
               </div>
+            </div>
+            <div className="hidden items-center gap-2 md:flex">
+              <span className="text-xs text-slate-500">排序</span>
+              <select
+                aria-label="智能排序"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as (typeof sortOptions)[number]['value'])}
+                className="h-9 rounded-xl border border-slate-200 px-3 py-1 text-sm"
+              >
+                {sortOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
             </div>
           </div>
           {productsLoading || productListLoading ? (
