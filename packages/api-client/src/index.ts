@@ -132,6 +132,71 @@ const fallback = {
         { name: '颜色', values: ['云白', '曜黑', '雾灰'] },
         { name: '尺码', values: ['40', '41', '42', '43'] }
       ]
+    },
+    {
+      id: 'p2',
+      title: 'Nova ANC 降噪耳机',
+      subtitle: '地铁办公都安静',
+      price: 699,
+      originPrice: 899,
+      image: 'https://picsum.photos/seed/headphone/400/300',
+      category: 'digital',
+      tags: ['降噪', '长续航'],
+      stock: 24,
+      soldCount: 1580,
+      rating: 4.7
+    },
+    {
+      id: 'p3',
+      title: '智能恒温电热水壶',
+      subtitle: '五档控温，母婴可用',
+      price: 199,
+      originPrice: 269,
+      image: 'https://picsum.photos/seed/kettle/400/300',
+      category: 'home',
+      tags: ['家居', '恒温'],
+      stock: 56,
+      soldCount: 990,
+      rating: 4.5
+    },
+    {
+      id: 'p4',
+      title: '轻享每日坚果礼盒',
+      subtitle: '30 袋独立包装',
+      price: 89,
+      originPrice: 119,
+      image: 'https://picsum.photos/seed/nuts/400/300',
+      category: 'food',
+      tags: ['零食', '健康'],
+      stock: 80,
+      soldCount: 3200,
+      rating: 4.6
+    },
+    {
+      id: 'p5',
+      title: 'CityRun 运动短袖',
+      subtitle: '速干透气不闷汗',
+      price: 129,
+      originPrice: 169,
+      image: 'https://picsum.photos/seed/tshirt/400/300',
+      category: 'fashion',
+      tags: ['速干', '夏季'],
+      stock: 120,
+      soldCount: 2100,
+      rating: 4.4
+    },
+    {
+      id: 'p6',
+      title: '便携磁吸充电宝 10000mAh',
+      subtitle: '小巧轻薄，支持快充',
+      price: 179,
+      originPrice: 239,
+      image: 'https://picsum.photos/seed/powerbank/400/300',
+      category: 'digital',
+      tags: ['快充', '磁吸'],
+      stock: 35,
+      soldCount: 1470,
+      rating: 4.6
     }
   ] as Product[],
   reviews: [
@@ -185,7 +250,7 @@ export const fetchProductDetail = async (id: string) => {
   try {
     return await request<Product>(`/api/products/${id}`);
   } catch {
-    return fallback.products[0];
+    return fallback.products.find((x) => x.id === id) || fallback.products[0];
   }
 };
 

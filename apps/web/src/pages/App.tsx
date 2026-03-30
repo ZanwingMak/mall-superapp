@@ -102,6 +102,7 @@ export default function App() {
   const filteredProducts = useMemo(() => filterAndSortProducts(products, keyword, category, sortBy), [products, keyword, category, sortBy]);
   const paginatedProducts = useMemo(() => paginateItems(filteredProducts, productPage, 16), [filteredProducts, productPage]);
   const hasActiveProductFilters = keyword.trim() || category !== 'all' || sortBy !== 'smart';
+  const isSingleProductResult = paginatedProducts.total <= 1;
 
   useEffect(() => {
     setProductPage(1);
@@ -279,7 +280,7 @@ export default function App() {
               aria-label="智能排序"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as (typeof sortOptions)[number]['value'])}
-              className="ml-auto rounded-xl border border-slate-200 px-3 py-1 text-sm"
+              className="h-9 w-full rounded-xl border border-slate-200 px-3 py-1 text-sm md:ml-auto md:w-auto"
             >
               {sortOptions.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
@@ -305,6 +306,15 @@ export default function App() {
                   </Button>
                 </div>
               ) : null}
+              {isSingleProductResult ? (
+                <div className="mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-700">
+                  <span className="font-semibold">当前仅展示 1 件商品</span>
+                  <span>可一键恢复默认筛选并查看全部。</span>
+                  <Button size="sm" variant="ghost" className="ml-auto border border-sky-200 bg-white text-sky-700 hover:bg-sky-100" onClick={resetProductFilters}>
+                    显示全部商品
+                  </Button>
+                </div>
+              ) : null}
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {paginatedProducts.visible.map((p) => (
                   <div key={p.id} className="rounded-3xl border border-transparent p-1 transition hover:border-slate-200">
@@ -321,7 +331,9 @@ export default function App() {
                     </button>
                     <div className="mt-2 flex gap-2">
                       <Button className="flex-1" onClick={() => onAddCart(p)}>加入购物车</Button>
-                      <Button variant="secondary" onClick={() => toggleFavorite(p.id)}>{favorites.includes(p.id) ? '♥' : '♡'}</Button>
+                      <Button variant="secondary" className="w-10 px-0" onClick={() => toggleFavorite(p.id)}>
+                        <span className="text-base leading-none">{favorites.includes(p.id) ? '♥' : '♡'}</span>
+                      </Button>
                     </div>
                     <button className="mt-2 w-full rounded-xl bg-slate-100 py-1 text-xs text-slate-600 hover:bg-slate-200" onClick={() => toggleCompare(p.id)}>
                       {compareIds.includes(p.id) ? '取消对比' : '加入对比'}
