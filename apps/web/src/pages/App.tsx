@@ -999,55 +999,83 @@ function SuccessPage({ go }: { go: (x: string) => void }) {
 
 function MePage({ go }: { go: (x: string) => void }) {
   const [editing, setEditing] = useState(false);
-  const [profile, setProfile] = useState({ nickname: '张三', phone: '138****8888', bio: '热爱品质生活与数码好物' });
+  const [profile, setProfile] = useState({ nickname: 'MARVIN', phone: '收货地址', bio: '省钱月卡 · 专属客服 · 退换无忧' });
   const { data: orders = [] } = useOrdersQuery();
+  const orderMap: Record<string, number> = {
+    pending: orders.filter((o) => o.status === 'pending').length,
+    shipping: orders.filter((o) => o.status === 'shipping').length,
+    delivered: orders.filter((o) => o.status === 'delivered').length,
+    done: orders.filter((o) => o.status === 'done').length
+  };
 
   return (
-    <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
-      <Card className="p-4">
+    <main className="mx-auto max-w-6xl space-y-3 p-3 pb-20 md:p-4">
+      <Card className="p-4 md:hidden">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3"><img src="https://picsum.photos/seed/avatar/120/120" className="h-14 w-14 rounded-full" /><div><p className="font-semibold">{profile.nickname}</p><p className="text-xs text-slate-500">{profile.phone} · PLUS 会员 · 成长值 3820</p></div></div>
-          <Button size="sm" variant={editing ? 'primary' : 'ghost'} className={`${editing ? '' : 'border border-slate-200 bg-white'} whitespace-nowrap`} onClick={() => setEditing((x) => !x)}>{editing ? '完成编辑' : '编辑资料'}</Button>
+          <div className="flex items-center gap-3">
+            <img src="https://picsum.photos/seed/avatar/120/120" className="h-14 w-14 rounded-full" />
+            <div>
+              <p className="font-semibold">{profile.nickname}</p>
+              <button className="text-xs text-slate-500" onClick={() => go('/addresses')}>◎ {profile.phone} ›</button>
+            </div>
+          </div>
+          <Button size="sm" variant="ghost" className="border border-slate-200 bg-white" onClick={() => setEditing((x) => !x)}>设置</Button>
         </div>
-        {editing ? <div className="mt-3 grid gap-2 text-sm md:grid-cols-2"><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.nickname} onChange={(e) => setProfile((p) => ({ ...p, nickname: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2 md:col-span-2" value={profile.bio} onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))} /></div> : <p className="mt-2 text-xs text-slate-500">{profile.bio}</p>}
+        {editing ? <div className="mt-3 grid gap-2 text-sm"><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.nickname} onChange={(e) => setProfile((p) => ({ ...p, nickname: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /></div> : null}
       </Card>
-      <Card className="p-4">
-        <SectionTitle extra={<div className="flex items-center gap-2"><span className="text-xs text-slate-500">最近 {orders.length} 条</span><Button size="sm" variant="ghost" className="border border-slate-200 bg-white" onClick={() => go('/orders')}>查看全部</Button></div>}>我的订单</SectionTitle>
-        <div className="grid grid-cols-2 gap-2 text-center text-sm md:grid-cols-4">
-          {orderTabs.slice(1).map((t) => {
-            const count = orders.filter((o) => t.key === 'all' || o.status === t.key).length;
-            return <button key={t.key} className="rounded-xl bg-slate-50 py-3" onClick={() => go('/orders')}>{t.label}<span className="ml-1 text-xs text-slate-500">{count}</span></button>;
-          })}
+
+      <Card className="p-0 md:p-4">
+        <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">省钱月卡 <span className="ml-2 text-rose-500">20 点前领券抢福利 ›</span></div>
+        <div className="p-4">
+          <SectionTitle extra={<button className="text-sm text-slate-500" onClick={() => go('/orders')}>全部 ›</button>}>我的订单 <span className="text-emerald-600">| 专属客服 · 闪电退换 · 售后无忧</span></SectionTitle>
+          <div className="mt-2 grid grid-cols-5 gap-2 text-center text-xs md:grid-cols-5">
+            {[
+              ['待付款', orderMap.pending],
+              ['拼团中', Math.max(2, Math.floor(orderMap.pending / 2))],
+              ['打包中', Math.max(1, orderMap.shipping)],
+              ['待收货', orderMap.delivered],
+              ['评价', Math.max(1, orderMap.done)]
+            ].map(([name, count]) => (
+              <button key={name as string} className="rounded-xl bg-slate-50 py-2" onClick={() => go('/orders')}>
+                <p>{name}</p>
+                <p className="text-[11px] text-rose-500">{count as number}</p>
+              </button>
+            ))}
+          </div>
         </div>
       </Card>
+
       <Card className="p-4">
-        <SectionTitle>服务中心</SectionTitle>
-        <div className="grid grid-cols-3 gap-2 text-center text-sm md:grid-cols-6">
-          {serviceEntries.map((name) => (
-            <button
-              key={name}
-              className="rounded-xl bg-slate-50 py-3"
-              onClick={() => {
-                if (name === '售后进度' || name === '退款管理') return go('/orders');
-                if (name === '在线客服') return go('/notifications');
-                if (name === '隐私设置') return go('/me');
-                if (name === '会员权益') return go('/');
-                if (name === '发票助手') return go('/checkout');
-              }}
-            >
-              {name}
-            </button>
+        <div className="grid grid-cols-5 gap-2 text-center text-xs md:grid-cols-5">
+          {[
+            ['商品收藏', '/favorites'],
+            ['多多钱包', '/checkout'],
+            ['优惠券', '/'],
+            ['历史浏览', '/footprints'],
+            ['退款售后', '/orders']
+          ].map(([name, url]) => (
+            <button key={name as string} className="rounded-xl bg-slate-50 py-3" onClick={() => go(url as string)}>{name as string}</button>
           ))}
         </div>
       </Card>
-      <Card className="grid grid-cols-2 gap-2 p-4 md:grid-cols-4">{[
-        ['我的收藏', '/favorites'],
-        ['收货地址', '/addresses'],
-        ['消息中心', '/notifications'],
-        ['浏览足迹', '/footprints'],
-        ['购物车', '/cart'],
-        ['首页', '/']
-      ].map(([name, url]) => <button key={name} className="rounded-xl bg-slate-50 py-3 text-sm" onClick={() => go(url)}>{name}</button>)}</Card>
+
+      <Card className="p-4">
+        <div className="mb-2 flex gap-3 text-sm text-slate-600"><span>专属客服</span><span>火车票</span></div>
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          {[...orders, ...orders].slice(0, 6).map((o, idx) => {
+            const p = `https://picsum.photos/seed/me-${idx}/300/300`;
+            return (
+              <button key={`${o.id}-${idx}`} className="overflow-hidden rounded-xl border border-slate-100 text-left" onClick={() => go('/')}>
+                <img src={p} className="h-28 w-full object-cover" />
+                <div className="p-2 text-xs">
+                  <p className="line-clamp-1 text-slate-700">{idx % 2 ? '【明治】meiji臻好喝牛乳5.2g' : '日本本土版 Meltykiss 奶茶巧克力'}</p>
+                  <p className="mt-1 text-[var(--color-brand)]">¥{(20 + idx * 3.2).toFixed(1)} <span className="text-slate-400">已拼 {(idx + 1) * 2000}+</span></p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </Card>
     </main>
   );
 }
