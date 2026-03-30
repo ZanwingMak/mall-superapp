@@ -162,16 +162,18 @@ export default function App() {
         <button className="text-sm font-bold text-[var(--color-brand)] md:text-base" onClick={() => go('/')}>
           Mall SuperApp
         </button>
-        <div className="order-3 flex w-full items-center gap-2 md:order-none md:flex-1">
-          <input
-            aria-label="搜索商品"
-            className="h-10 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-[var(--color-brand)] focus:bg-white"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="搜索商品、品牌、品类"
-          />
-          <Button size="sm" onClick={() => { setKeyword((v) => v.trim()); setToast('已按关键词筛选'); }}>搜索</Button>
-        </div>
+        {path === '/' ? (
+          <div className="order-3 flex w-full items-center gap-2 md:order-none md:flex-1">
+            <input
+              aria-label="搜索商品"
+              className="h-10 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-[var(--color-brand)] focus:bg-white"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="搜索商品、品牌、品类"
+            />
+            <Button size="sm" onClick={() => { setKeyword((v) => v.trim()); setToast('已按关键词筛选'); }}>搜索</Button>
+          </div>
+        ) : null}
         <div className="ml-auto hidden items-center gap-1.5 md:flex md:gap-2">
           <Button size="sm" variant="secondary" onClick={() => go('/notifications')}>
             消息{unreadCount ? `(${unreadCount})` : ''}
@@ -986,6 +988,7 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
   const [draft, setDraft] = useState({ name: '', phone: '', city: '', detail: '' });
   const [localAdds, setLocalAdds] = useState<Address[]>([]);
   const [editingId, setEditingId] = useState('');
+  const [showAddressForm, setShowAddressForm] = useState(false);
 
   useEffect(() => {
     if (!addresses.length) return;
@@ -1016,10 +1019,12 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
       setLocalAdds((prev) => [next, ...prev]);
     }
     setDraft({ name: '', phone: '', city: '', detail: '' });
+    setShowAddressForm(false);
   };
 
   const startEdit = (a: Address) => {
     setEditingId(a.id);
+    setShowAddressForm(true);
     setDraft({ name: a.name, phone: a.phone, city: a.city, detail: a.detail });
   };
 
@@ -1069,17 +1074,21 @@ function AddressesPage({ go }: { go: (x: string) => void }) {
       </Card>
 
       <Card className="p-4">
-        <SectionTitle>{editingId ? '编辑收货地址' : '新增收货地址'}</SectionTitle>
-        <div className="grid gap-2 md:grid-cols-2">
-          <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="收货人" value={draft.name} onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))} />
-          <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="手机号" value={draft.phone} onChange={(e) => setDraft((p) => ({ ...p, phone: e.target.value }))} />
-          <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="省市区" value={draft.city} onChange={(e) => setDraft((p) => ({ ...p, city: e.target.value }))} />
-          <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="街道门牌" value={draft.detail} onChange={(e) => setDraft((p) => ({ ...p, detail: e.target.value }))} />
-        </div>
-        <div className="mt-3 flex gap-2">
-          <Button onClick={saveAddress}>{editingId ? '保存修改' : '保存地址'}</Button>
-          {editingId ? <Button variant="secondary" onClick={() => { setEditingId(''); setDraft({ name: '', phone: '', city: '', detail: '' }); }}>取消编辑</Button> : null}
-        </div>
+        <SectionTitle extra={!showAddressForm ? <Button size="sm" onClick={() => { setShowAddressForm(true); setEditingId(''); }}>新增地址</Button> : null}>{editingId ? '编辑收货地址' : '新增收货地址'}</SectionTitle>
+        {showAddressForm ? (
+          <>
+            <div className="grid gap-2 md:grid-cols-2">
+              <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="收货人" value={draft.name} onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))} />
+              <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="手机号" value={draft.phone} onChange={(e) => setDraft((p) => ({ ...p, phone: e.target.value }))} />
+              <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="省市区" value={draft.city} onChange={(e) => setDraft((p) => ({ ...p, city: e.target.value }))} />
+              <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="街道门牌" value={draft.detail} onChange={(e) => setDraft((p) => ({ ...p, detail: e.target.value }))} />
+            </div>
+            <div className="mt-3 flex gap-2">
+              <Button onClick={saveAddress}>{editingId ? '保存修改' : '保存地址'}</Button>
+              <Button variant="secondary" onClick={() => { setEditingId(''); setDraft({ name: '', phone: '', city: '', detail: '' }); setShowAddressForm(false); }}>取消</Button>
+            </div>
+          </>
+        ) : <p className="text-sm text-slate-500">点击右上角“新增地址”开始填写。</p>}
       </Card>
     </main>
   );
