@@ -999,7 +999,13 @@ function SuccessPage({ go }: { go: (x: string) => void }) {
 
 function MePage({ go }: { go: (x: string) => void }) {
   const [editing, setEditing] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const [profile, setProfile] = useState({ nickname: 'MARVIN', phone: '收货地址', bio: '省钱月卡 · 专属客服 · 退换无忧' });
+  const [appSettings, setAppSettings] = useState({
+    push: true,
+    sound: true,
+    personalize: true
+  });
   const { data: orders = [] } = useOrdersQuery();
   const orderMap: Record<string, number> = {
     pending: orders.filter((o) => o.status === 'pending').length,
@@ -1007,6 +1013,10 @@ function MePage({ go }: { go: (x: string) => void }) {
     delivered: orders.filter((o) => o.status === 'delivered').length,
     done: orders.filter((o) => o.status === 'done').length
   };
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <main className="mx-auto max-w-6xl space-y-3 p-3 pb-20 md:p-4">
@@ -1019,15 +1029,15 @@ function MePage({ go }: { go: (x: string) => void }) {
               <button className="text-xs text-slate-500" onClick={() => go('/addresses')}>◎ {profile.phone} ›</button>
             </div>
           </div>
-          <Button size="sm" variant="ghost" className="border border-slate-200 bg-white" onClick={() => setEditing((x) => !x)}>设置</Button>
+          {isClient ? <Button size="sm" variant="ghost" className="border border-slate-200 bg-white" onClick={() => setEditing((x) => !x)}>设置</Button> : null}
         </div>
-        {editing ? <div className="mt-3 grid gap-2 text-sm"><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.nickname} onChange={(e) => setProfile((p) => ({ ...p, nickname: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /></div> : null}
+        {isClient && editing ? <div className="mt-3 space-y-3 text-sm"><div className="grid gap-2"><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.nickname} onChange={(e) => setProfile((p) => ({ ...p, nickname: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /></div><div className="rounded-2xl border border-slate-200 bg-slate-50 p-3"><p className="mb-2 text-xs font-semibold text-slate-600">App 功能设置</p><div className="space-y-2 text-xs">{[["push", "消息推送"], ["sound", "应用提示音"], ["personalize", "个性化推荐"]].map(([key, label]) => (<label key={key as string} className="flex items-center justify-between"><span>{label as string}</span><input type="checkbox" checked={appSettings[key as keyof typeof appSettings]} onChange={(e) => setAppSettings((prev) => ({ ...prev, [key]: e.target.checked }))} /></label>))}</div></div></div> : null}
       </Card>
 
       <Card className="p-0 md:p-4">
         <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">省钱月卡 <span className="ml-2 text-rose-500">20 点前领券抢福利 ›</span></div>
         <div className="p-4">
-          <SectionTitle extra={<button className="text-sm text-slate-500" onClick={() => go('/orders')}>全部 ›</button>}>我的订单 <span className="text-emerald-600">| 专属客服 · 闪电退换 · 售后无忧</span></SectionTitle>
+          <SectionTitle extra={<button className="text-sm text-slate-500" onClick={() => go('/orders')}>全部 ›</button>}>我的订单 <span className="text-emerald-600">| 官方售后 · 闪电退换 · 售后无忧</span></SectionTitle>
           <div className="mt-2 grid grid-cols-5 gap-2 text-center text-xs md:grid-cols-5">
             {[
               ['待付款', orderMap.pending],
@@ -1049,7 +1059,7 @@ function MePage({ go }: { go: (x: string) => void }) {
         <div className="grid grid-cols-5 gap-2 text-center text-xs md:grid-cols-5">
           {[
             ['商品收藏', '/favorites'],
-            ['多多钱包', '/checkout'],
+            ['收货地址', '/addresses'],
             ['优惠券', '/'],
             ['历史浏览', '/footprints'],
             ['退款售后', '/orders']
@@ -1060,7 +1070,7 @@ function MePage({ go }: { go: (x: string) => void }) {
       </Card>
 
       <Card className="p-4">
-        <div className="mb-2 flex gap-3 text-sm text-slate-600"><span>专属客服</span><span>火车票</span></div>
+        <div className="mb-2 text-sm text-slate-600">推荐商品</div>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {[...orders, ...orders].slice(0, 6).map((o, idx) => {
             const p = `https://picsum.photos/seed/me-${idx}/300/300`;
