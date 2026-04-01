@@ -207,6 +207,7 @@ export default function App() {
   if (path === '/notifications') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><NotificationsPage go={go} /></PageWrap>;
   if (path === '/footprints') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><FootprintsPage go={go} products={products} /></PageWrap>;
   if (path === '/me') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><MePage go={go} /></PageWrap>;
+  if (path === '/settings') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><SettingsPage go={go} /></PageWrap>;
   if (path === '/search') return <PageWrap header={Header} toast={toast} path={path} go={go} unreadCount={unreadCount}><SearchPage go={go} products={products} keyword={keyword} /></PageWrap>;
 
   return (
@@ -488,7 +489,7 @@ function BottomTabBar({ path, go, unreadCount }: { path: string; go: (x: string)
       ? 'notifications'
       : path.startsWith('/orders')
         ? 'orders'
-        : path.startsWith('/me') || path.startsWith('/favorites') || path.startsWith('/addresses') || path.startsWith('/footprints')
+        : path.startsWith('/me') || path.startsWith('/settings') || path.startsWith('/favorites') || path.startsWith('/addresses') || path.startsWith('/footprints')
           ? 'me'
           : 'home';
 
@@ -998,14 +999,8 @@ function SuccessPage({ go }: { go: (x: string) => void }) {
 }
 
 function MePage({ go }: { go: (x: string) => void }) {
-  const [editing, setEditing] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const [profile, setProfile] = useState({ nickname: 'MARVIN', phone: '收货地址', bio: '省钱月卡 · 专属客服 · 退换无忧' });
-  const [appSettings, setAppSettings] = useState({
-    push: true,
-    sound: true,
-    personalize: true
-  });
+  const [profile] = useState({ nickname: 'MARVIN', phone: '收货地址', bio: '省钱月卡 · 专属客服 · 退换无忧' });
   const { data: orders = [] } = useOrdersQuery();
   const orderMap: Record<string, number> = {
     pending: orders.filter((o) => o.status === 'pending').length,
@@ -1029,15 +1024,14 @@ function MePage({ go }: { go: (x: string) => void }) {
               <button className="text-xs text-slate-500" onClick={() => go('/addresses')}>◎ {profile.phone} ›</button>
             </div>
           </div>
-          {isClient ? <Button size="sm" variant="ghost" className="border border-slate-200 bg-white" onClick={() => setEditing((x) => !x)}>设置</Button> : null}
+          {isClient ? <Button size="sm" variant="ghost" className="border border-slate-200 bg-white" onClick={() => go('/settings')}>设置</Button> : null}
         </div>
-        {isClient && editing ? <div className="mt-3 space-y-3 text-sm"><div className="grid gap-2"><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.nickname} onChange={(e) => setProfile((p) => ({ ...p, nickname: e.target.value }))} /><input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /></div><div className="rounded-2xl border border-slate-200 bg-slate-50 p-3"><p className="mb-2 text-xs font-semibold text-slate-600">App 功能设置</p><div className="space-y-2 text-xs">{[["push", "消息推送"], ["sound", "应用提示音"], ["personalize", "个性化推荐"]].map(([key, label]) => (<label key={key as string} className="flex items-center justify-between"><span>{label as string}</span><input type="checkbox" checked={appSettings[key as keyof typeof appSettings]} onChange={(e) => setAppSettings((prev) => ({ ...prev, [key]: e.target.checked }))} /></label>))}</div></div></div> : null}
       </Card>
 
       <Card className="p-0 md:p-4">
         <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">省钱月卡 <span className="ml-2 text-rose-500">20 点前领券抢福利 ›</span></div>
         <div className="p-4">
-          <SectionTitle extra={<button className="text-sm text-slate-500" onClick={() => go('/orders')}>全部 ›</button>}>我的订单 <span className="text-emerald-600">| 官方售后 · 闪电退换 · 售后无忧</span></SectionTitle>
+          <SectionTitle extra={<button className="text-sm text-slate-500" onClick={() => go('/orders')}>全部 ›</button>}>我的订单</SectionTitle>
           <div className="mt-2 grid grid-cols-5 gap-2 text-center text-xs md:grid-cols-5">
             {[
               ['待付款', orderMap.pending],
@@ -1084,6 +1078,43 @@ function MePage({ go }: { go: (x: string) => void }) {
               </button>
             );
           })}
+        </div>
+      </Card>
+    </main>
+  );
+}
+
+function SettingsPage({ go }: { go: (x: string) => void }) {
+  const [profile, setProfile] = useState({ nickname: 'MARVIN', phone: '收货地址' });
+  const [appSettings, setAppSettings] = useState({
+    push: true,
+    sound: true,
+    personalize: true
+  });
+
+  return (
+    <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
+      <Card className="p-4">
+        <SectionTitle extra={<Button variant="ghost" onClick={() => go('/me')}>返回我的</Button>}>设置</SectionTitle>
+        <div className="grid gap-2 text-sm">
+          <input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.nickname} onChange={(e) => setProfile((p) => ({ ...p, nickname: e.target.value }))} />
+          <input className="rounded-xl border border-slate-200 px-3 py-2" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} />
+        </div>
+      </Card>
+
+      <Card className="p-4">
+        <SectionTitle>App 功能设置</SectionTitle>
+        <div className="space-y-3 text-sm">
+          {[['push', '消息推送'], ['sound', '应用提示音'], ['personalize', '个性化推荐']].map(([key, label]) => (
+            <label key={key as string} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
+              <span>{label as string}</span>
+              <input
+                type="checkbox"
+                checked={appSettings[key as keyof typeof appSettings]}
+                onChange={(e) => setAppSettings((prev) => ({ ...prev, [key]: e.target.checked }))}
+              />
+            </label>
+          ))}
         </div>
       </Card>
     </main>
